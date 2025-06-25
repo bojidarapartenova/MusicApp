@@ -1,0 +1,45 @@
+﻿@page
+@model MusicApp.Web.Areas.Identity.Pages.Account.ProfileModel
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<link href="~/css/style.css" rel="stylesheet" />
+
+<div class="row">
+    <div class="col-md-4">
+        <h1>@ViewData["Title"]</h1>
+        <hr />
+        @if (TempData["StatusMessage"] != null)
+        {
+            <div class="alert alert-success">@TempData["StatusMessage"]</div>
+        }
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Input.UserName" class="form-control" placeholder="Username" />
+                <label asp-for="Input.UserName">Username</label>
+                <span asp-validation-for="Input.UserName" class="text-danger"></span>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Email" class="form-control" placeholder="Email" />
+                <label asp-for="Input.Email">Email</label>
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Phone Number" />
+                <label asp-for="Input.PhoneNumber">Phone Number</label>
+                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+            </div>
+
+            <button id="save-changes" type="submit" class="w-100 btn btn-lg btn-primary">Save Changes</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
