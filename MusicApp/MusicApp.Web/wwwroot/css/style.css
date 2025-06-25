@@ -1,0 +1,68 @@
+﻿body {
+    background-color: #111;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+}
+
+/* Center the form vertically and horizontally */
+.row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+/* Glowing border around form */
+.col-md-4 {
+    margin: 0 auto;
+    border: 1px solid #0af;
+    padding: 30px;
+    border-radius: 10px;
+    background-color: #111;
+    box-shadow: 0 0 15px #0af;
+    animation: pulseGlow 2.5s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 10px #0af;
+    }
+
+    50% {
+        box-shadow: 0 0 20px #0af;
+    }
+}
+
+h1 {
+    color: white;
+    text-align: center;
+}
+
+form {
+    width: 100%;
+    color: #fff;
+}
+
+.form-floating {
+    margin-bottom: 1rem;
+}
+
+.form-control {
+    background: #222;
+    border: none;
+    color: #fff;
+}
+
+    .form-control:focus {
+        background: #222;
+        color: #fff;
+    }
+
+label {
+    color: #aaa;
+}
+
+button {
+    margin-top: 10px;
+}
