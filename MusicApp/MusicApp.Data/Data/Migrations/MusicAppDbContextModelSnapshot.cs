@@ -74,71 +74,6 @@ namespace MusicApp.Web.Data.Migrations
                     b.ToTable("AspNetRoleClaims", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.ToTable("AspNetUsers", (string)null);
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
                     b.Property<int>("Id")
@@ -224,14 +159,80 @@ namespace MusicApp.Web.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("MusicApp.Data.Models.ApplicationUser", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.ToTable("AspNetUsers", (string)null);
+                });
+
             modelBuilder.Entity("MusicApp.Data.Models.Comment", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Likes")
-                        .HasColumnType("int");
 
                     b.Property<Guid>("SongId")
                         .HasColumnType("uniqueidentifier");
@@ -248,7 +249,7 @@ namespace MusicApp.Web.Data.Migrations
                     b.ToTable("Comments");
                 });
 
-            modelBuilder.Entity("MusicApp.Data.Models.Notification", b =>
+            modelBuilder.Entity("MusicApp.Data.Models.Like", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -257,7 +258,34 @@ namespace MusicApp.Web.Data.Migrations
                     b.Property<Guid>("SongId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("SongId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Likes");
+                });
+
+            modelBuilder.Entity("MusicApp.Data.Models.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid>("SongId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationUserId");
 
                     b.HasIndex("SongId");
 
@@ -270,11 +298,14 @@ namespace MusicApp.Web.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("CoverUrl")
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Likes")
-                        .HasColumnType("int");
+                    b.Property<bool>("IsFavorites")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -282,6 +313,8 @@ namespace MusicApp.Web.Data.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ApplicationUserId");
 
                     b.ToTable("Playlists");
                 });
@@ -307,11 +340,21 @@ namespace MusicApp.Web.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("CoverUrl")
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AudioUrl")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Duration")
                         .HasColumnType("int");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<int>("Likes")
                         .HasColumnType("int");
@@ -326,7 +369,44 @@ namespace MusicApp.Web.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ApplicationUserId");
+
                     b.ToTable("Songs");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("e1a3c7d2-b4d9-4f51-8c52-16fa3b2b1c5a"),
+                            AudioUrl = "/audio/beautiful_things.mp3",
+                            Duration = 154,
+                            ImageUrl = "https://upload.wikimedia.org/wikipedia/en/4/4b/Benson_Boone_-_Beautiful_Things.png",
+                            IsDeleted = false,
+                            Likes = 0,
+                            ReleaseDate = new DateTime(2024, 1, 19, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Title = "Benson Boone - Beautiful Things (Sped Up)"
+                        },
+                        new
+                        {
+                            Id = new Guid("f4e2a8c9-7f38-4cbe-bad4-3c4e5f27893d"),
+                            AudioUrl = "/audio/popular.mp3",
+                            Duration = 187,
+                            ImageUrl = "https://upload.wikimedia.org/wikipedia/en/2/24/The_Weeknd_-_Popular.png",
+                            IsDeleted = false,
+                            Likes = 0,
+                            ReleaseDate = new DateTime(2023, 6, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Title = "The Weeknd - Popular (Sped up)"
+                        },
+                        new
+                        {
+                            Id = new Guid("a7b1e9c3-3fc2-4d6b-b14a-91d208bc72e1"),
+                            AudioUrl = "/audio/espresso.mp3",
+                            Duration = 162,
+                            ImageUrl = "https://upload.wikimedia.org/wikipedia/en/7/71/Espresso_-_Sabrina_Carpenter.png",
+                            IsDeleted = false,
+                            Likes = 0,
+                            ReleaseDate = new DateTime(2024, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Title = "Espresso - Sabrina Carpenter (Sped up)"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -340,7 +420,7 @@ namespace MusicApp.Web.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("MusicApp.Data.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -349,7 +429,7 @@ namespace MusicApp.Web.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("MusicApp.Data.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -364,7 +444,7 @@ namespace MusicApp.Web.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("MusicApp.Data.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -373,7 +453,7 @@ namespace MusicApp.Web.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("MusicApp.Data.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -391,8 +471,31 @@ namespace MusicApp.Web.Data.Migrations
                     b.Navigation("Song");
                 });
 
+            modelBuilder.Entity("MusicApp.Data.Models.Like", b =>
+                {
+                    b.HasOne("MusicApp.Data.Models.Song", "Song")
+                        .WithMany()
+                        .HasForeignKey("SongId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MusicApp.Data.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Song");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("MusicApp.Data.Models.Notification", b =>
                 {
+                    b.HasOne("MusicApp.Data.Models.ApplicationUser", null)
+                        .WithMany("Notifications")
+                        .HasForeignKey("ApplicationUserId");
+
                     b.HasOne("MusicApp.Data.Models.Song", "Song")
                         .WithMany()
                         .HasForeignKey("SongId")
@@ -402,23 +505,46 @@ namespace MusicApp.Web.Data.Migrations
                     b.Navigation("Song");
                 });
 
+            modelBuilder.Entity("MusicApp.Data.Models.Playlist", b =>
+                {
+                    b.HasOne("MusicApp.Data.Models.ApplicationUser", null)
+                        .WithMany("Playlists")
+                        .HasForeignKey("ApplicationUserId");
+                });
+
             modelBuilder.Entity("MusicApp.Data.Models.PlaylistSong", b =>
                 {
                     b.HasOne("MusicApp.Data.Models.Playlist", "Playlist")
                         .WithMany("PlaylistsSongs")
                         .HasForeignKey("PlaylistId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("MusicApp.Data.Models.Song", "Song")
                         .WithMany("PlaylistsSongs")
                         .HasForeignKey("SongId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Playlist");
 
                     b.Navigation("Song");
+                });
+
+            modelBuilder.Entity("MusicApp.Data.Models.Song", b =>
+                {
+                    b.HasOne("MusicApp.Data.Models.ApplicationUser", null)
+                        .WithMany("UploadedSongs")
+                        .HasForeignKey("ApplicationUserId");
+                });
+
+            modelBuilder.Entity("MusicApp.Data.Models.ApplicationUser", b =>
+                {
+                    b.Navigation("Notifications");
+
+                    b.Navigation("Playlists");
+
+                    b.Navigation("UploadedSongs");
                 });
 
             modelBuilder.Entity("MusicApp.Data.Models.Playlist", b =>

@@ -16,6 +16,7 @@ namespace MusicApp.Data.Models
 
         public Guid SongId { get; set; }
 
+        [Required]
         [ForeignKey(nameof(SongId))]
         public Song Song { get; set; } = null!;
     }

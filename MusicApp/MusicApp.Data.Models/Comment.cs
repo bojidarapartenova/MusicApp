@@ -12,15 +12,15 @@ namespace MusicApp.Data.Models
     public class Comment
     {
         [Key]
-
         public Guid Id { get; set; }
 
         public Guid SongId { get; set; }
 
+        [Required]
         [ForeignKey(nameof(SongId))]
         public Song Song { get; set; } = null!;
-        public int Likes { get; set; }
 
+        [Required]
         [MaxLength(150)]
         public string Text { get; set; } = null!;
     }
