@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MusicApp.Data.Data;
 using MusicApp.Data.Models;
+using MusicApp.Services.Core;
+using MusicApp.Services.Core.Interfaces;
 
 namespace MusicApp.Web
 {
@@ -26,6 +28,8 @@ namespace MusicApp.Web
                 options.Password.RequireLowercase = false;
             })
                 .AddEntityFrameworkStores<MusicAppDbContext>();
+
+            builder.Services.AddScoped<ISongService, SongService>();
             builder.Services.AddControllersWithViews();
 
             var app = builder.Build();

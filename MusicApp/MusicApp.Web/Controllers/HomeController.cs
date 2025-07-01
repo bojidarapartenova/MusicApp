@@ -1,18 +1,19 @@
 using System.Diagnostics;
+using CinemaApp.Web.Controllers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicApp.Web.Models;
 
 namespace MusicApp.Web.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController()
         {
-            _logger = logger;
+           
         }
 
+        [AllowAnonymous]
         public IActionResult Index()
         {
             return View();
