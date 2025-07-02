@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using MusicApp.Data.Data;
 using MusicApp.Services.Core.Interfaces;
 using MusicApp.Web.ViewModels.Song;
+using MusicApp.Data.Models;
 
 namespace MusicApp.Services.Core
 {
@@ -28,12 +29,27 @@ namespace MusicApp.Services.Core
                     Id=s.Id,
                     Title = s.Title,
                     Duration = s.Duration,
-                    ImageUrl = s.ImageUrl,
-                    //ReleaseDate = s.ReleaseDate
+                    ImageUrl = s.ImageUrl ?? $"/images/no-image.jpg"
                 })
                 .ToArrayAsync();
 
             return songs;
+        }
+
+        public async Task AddSongAsync(AddSongInputModel inputModel)
+        {
+            Song song = new Song()
+            {
+                Title = inputModel.Title,
+                ImageUrl = inputModel.ImageUrl,
+                AudioUrl = inputModel.AudioUrl,
+                ReleaseDate = DateTime.Now,
+                Duration = inputModel.Duration,
+                Likes = 0
+            };
+
+            await dbContext.Songs.AddAsync(song);
+            await dbContext.SaveChangesAsync();
         }
     }
 }

@@ -10,5 +10,6 @@ namespace MusicApp.Services.Core.Interfaces
     public interface ISongService
     {
         Task<IEnumerable<SongViewModel>> GetAllSongsAsync();
+        Task AddSongAsync(AddSongInputModel inputModel);
     }
 }

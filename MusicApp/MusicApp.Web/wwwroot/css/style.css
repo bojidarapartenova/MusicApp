@@ -1,12 +1,10 @@
-﻿/* General page background and layout */
-body {
+﻿body {
     background-color: #111;
     margin: 0;
     padding: 0;
     height: 100vh;
 }
 
-/* Centering the form container vertically and horizontally */
 .row {
     display: flex;
     justify-content: center;
@@ -14,7 +12,6 @@ body {
     height: 100%;
 }
 
-/* The glowing, rounded box container */
 .col-md-4 {
     margin: 0 auto;
     border: 1px solid #4A5C6A;
@@ -25,7 +22,6 @@ body {
     animation: pulseGlow 2.5s ease-in-out infinite;
 }
 
-/* Glow animation */
 @keyframes pulseGlow {
     0%, 100% {
         box-shadow: 0 0 10px #4A5C6A;
@@ -36,32 +32,28 @@ body {
     }
 }
 
-/* Heading styling */
 h1 {
     color: white;
     text-align: center;
     margin-bottom: 1rem;
 }
 
-/* Form styles */
 form {
     width: 100%;
     color: #fff;
 }
 
-/* Spacing between floating form groups */
 .form-floating {
     margin-bottom: 1rem;
 }
 
-/* Input field styling */
 .form-control {
     background: #222;
     border: none;
     color: #fff;
 }
 
-    /* Input focus styles with glowing border */
+    
     .form-control:focus {
         background: #222;
         color: #fff;
@@ -70,18 +62,15 @@ form {
         outline: none;
     }
 
-/* Label color */
 label {
     color: #aaa;
 }
 
-/* Validation error messages */
 .text-danger {
     color: #ff4d4d;
 }
 
-/* Button styles */
-#registerSubmit, #login-submit, #save-changes {
+#registerSubmit, #login-submit, #save-changes, #btn-add {
     margin-top: 10px;
     background-color: #4A5C6A;
     border-color: #4A5C6A;
@@ -93,22 +82,21 @@ label {
     transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-    /* Button hover effect */
-    #registerSubmit:hover, #login-submit:hover, #save-changes:hover {
+    
+    #registerSubmit:hover, #login-submit:hover, #save-changes:hover, #btn-add:hover {
         background-color: #2c363d;
         border-color: #2c363d;
     }
 
-    #registerSubmit:active, #login-submit:active, #save-changes:active,
-    #registerSubmit:focus, #login-submit:focus, #save-changes:focus {
-        background-color: inherit; /* or your normal background color */
-        color: inherit; /* or your normal text color */
-        border-color: inherit; /* or your normal border color */
-        outline: none; /* removes the blue outline on focus */
-        box-shadow: none; /* remove focus shadow */
+    #registerSubmit:active, #login-submit:active, #save-changes:active, #btn-add:active,
+    #registerSubmit:focus, #login-submit:focus, #save-changes:focus, #btn-add:focus {
+        background-color: inherit; 
+        color: inherit; 
+        border-color: inherit; 
+        outline: none; 
+        box-shadow: none; 
     }
 
-/* Success alert style for TempData messages */
 .alert {
     padding: 0.75rem 1.25rem;
     margin-bottom: 1rem;

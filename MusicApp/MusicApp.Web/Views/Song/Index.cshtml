@@ -11,7 +11,6 @@
         background-color: #111;
         margin: 0;
         padding: 0;
-        height: 100vh;
         color: #CCD0CF;
     }
 
@@ -23,9 +22,14 @@
         gap: 60px;
         min-height: 80vh;
         padding: 40px 0;
+        padding-bottom: 80px;
     }
 
     .song-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 380px;
         width: 300px;
         border: 1px solid #4A5C6A;
         border-radius: 10px;
@@ -35,6 +39,7 @@
         transition: transform 0.2s ease-in-out;
         background-color: #111;
     }
+
 
         .song-card:hover {
             transform: scale(1.03);
@@ -82,10 +87,17 @@ else
         @foreach(var song in Model)
         {
             <div class="song-card">
-                <img src="@song.ImageUrl" alt="@song.Title" class="song-image"/>
-                <div class="song-title">@song.Title</div>
-                <a class="listen-button" asp-controller="Song" asp-action="Details" asp-route-id="@song.Id">Listen</a>
+                <img src="@song.ImageUrl" alt="@song.Title" class="song-image" />
+
+                <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div class="song-title">@song.Title</div>
+
+                    <div style="margin-top: auto;">
+                        <a class="listen-button" asp-controller="Song" asp-action="Details" asp-route-id="@song.Id">Listen</a>
+                    </div>
+                </div>
             </div>
+
         }
 
     </div>
