@@ -59,19 +59,25 @@
         margin-bottom: 10px;
     }
 
-    .listen-button {
+    .listen-button, .details-button {
         display: inline-block;
-        padding: 10px 20px;
+        padding: 5px 10px;
         background-color: #4A5C6A;
         color: #CCD0CF;
         text-decoration: none;
-        border-radius: 6px;
+        border-radius: 50px;
         transition: background-color 0.3s ease;
     }
 
-        .listen-button:hover {
+        .listen-button:hover, .details-button:hover {
             background-color: #CCD0CF;
             color:#4A5C6A;
+        }
+
+        .buttons{
+            display:flex;
+            justify-content:center;
+            gap:10px;
         }
 </style>
 
@@ -92,8 +98,9 @@ else
                 <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
                     <div class="song-title">@song.Title</div>
 
-                    <div style="margin-top: auto;">
-                        <a class="listen-button" asp-controller="Song" asp-action="Details" asp-route-id="@song.Id">Listen</a>
+                    <div class="buttons" style="margin-top: auto;">
+                        <a class="listen-button" asp-controller="Song" asp-action="Listen" asp-route-id="@song.Id">Listen</a>
+                        <a class="details-button" asp-controller="Song" asp-action="Details" asp-route-id="@song.Id">View Details</a>
                     </div>
                 </div>
             </div>

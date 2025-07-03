@@ -12,8 +12,8 @@ using MusicApp.Data.Data;
 namespace MusicApp.Web.Data.Migrations
 {
     [DbContext(typeof(MusicAppDbContext))]
-    [Migration("20250701105710_SeedSongs")]
-    partial class SeedSongs
+    [Migration("20250703101734_AddSongPublisherGenreArtist")]
+    partial class AddSongPublisherGenreArtist
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -229,6 +229,23 @@ namespace MusicApp.Web.Data.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "1",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "3acd0da2-f7c4-4406-9a00-cc6f47bdfdb5",
+                            Email = "admin@gmail.com",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            Name = "Admin",
+                            NormalizedEmail = "ADMIN@GMAIL.COM",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "a366c121-b804-42ae-9ac7-7d3025ec1377",
+                            TwoFactorEnabled = false,
+                            UserName = "admin@gmail.com"
+                        });
                 });
 
             modelBuilder.Entity("MusicApp.Data.Models.Comment", b =>
@@ -343,8 +360,10 @@ namespace MusicApp.Web.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("Artist")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("AudioUrl")
                         .IsRequired()
@@ -352,6 +371,11 @@ namespace MusicApp.Web.Data.Migrations
 
                     b.Property<int>("Duration")
                         .HasColumnType("int");
+
+                    b.Property<string>("Genre")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
@@ -361,6 +385,10 @@ namespace MusicApp.Web.Data.Migrations
 
                     b.Property<int>("Likes")
                         .HasColumnType("int");
+
+                    b.Property<string>("PublisherId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("ReleaseDate")
                         .HasColumnType("datetime2");
@@ -372,44 +400,9 @@ namespace MusicApp.Web.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationUserId");
+                    b.HasIndex("PublisherId");
 
                     b.ToTable("Songs");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("e1a3c7d2-b4d9-4f51-8c52-16fa3b2b1c5a"),
-                            AudioUrl = "/audio/beautiful_things.mp3",
-                            Duration = 154,
-                            ImageUrl = "https://upload.wikimedia.org/wikipedia/en/4/4b/Benson_Boone_-_Beautiful_Things.png",
-                            IsDeleted = false,
-                            Likes = 0,
-                            ReleaseDate = new DateTime(2024, 1, 19, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Title = "Benson Boone - Beautiful Things (Sped Up)"
-                        },
-                        new
-                        {
-                            Id = new Guid("f4e2a8c9-7f38-4cbe-bad4-3c4e5f27893d"),
-                            AudioUrl = "/audio/popular.mp3",
-                            Duration = 187,
-                            ImageUrl = "https://upload.wikimedia.org/wikipedia/en/2/24/The_Weeknd_-_Popular.png",
-                            IsDeleted = false,
-                            Likes = 0,
-                            ReleaseDate = new DateTime(2023, 6, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Title = "The Weeknd - Popular (Sped up)"
-                        },
-                        new
-                        {
-                            Id = new Guid("a7b1e9c3-3fc2-4d6b-b14a-91d208bc72e1"),
-                            AudioUrl = "/audio/espresso.mp3",
-                            Duration = 162,
-                            ImageUrl = "https://upload.wikimedia.org/wikipedia/en/7/71/Espresso_-_Sabrina_Carpenter.png",
-                            IsDeleted = false,
-                            Likes = 0,
-                            ReleaseDate = new DateTime(2024, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Title = "Espresso - Sabrina Carpenter (Sped up)"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -536,9 +529,13 @@ namespace MusicApp.Web.Data.Migrations
 
             modelBuilder.Entity("MusicApp.Data.Models.Song", b =>
                 {
-                    b.HasOne("MusicApp.Data.Models.ApplicationUser", null)
+                    b.HasOne("MusicApp.Data.Models.ApplicationUser", "Publisher")
                         .WithMany("UploadedSongs")
-                        .HasForeignKey("ApplicationUserId");
+                        .HasForeignKey("PublisherId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Publisher");
                 });
 
             modelBuilder.Entity("MusicApp.Data.Models.ApplicationUser", b =>

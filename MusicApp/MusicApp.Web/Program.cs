@@ -30,6 +30,8 @@ namespace MusicApp.Web
                 .AddEntityFrameworkStores<MusicAppDbContext>();
 
             builder.Services.AddScoped<ISongService, SongService>();
+            builder.Services.AddScoped<IGenreService, GenreService>();
+
             builder.Services.AddControllersWithViews();
 
             var app = builder.Build();

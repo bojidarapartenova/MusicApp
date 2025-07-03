@@ -12,6 +12,5 @@ namespace MusicApp.Web.ViewModels.Song
         public string? ImageUrl { get; set; }
         public string Title { get; set; } = null!;
         public int Duration {  get; set; }
-        //public DateTime ReleaseDate { get; set; }
     }
 }

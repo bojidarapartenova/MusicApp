@@ -10,17 +10,18 @@ namespace MusicApp.Web.Controllers
     public class SongController : BaseController
     {
         private readonly ISongService songService;
-
-        public SongController(ISongService songService)
+        private readonly IGenreService genreService;
+        public SongController(ISongService songService, IGenreService genreService)
         {
             this.songService = songService;
+            this.genreService = genreService;
         }
 
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            IEnumerable<SongViewModel> songs =await songService.GetAllSongsAsync();
+            IEnumerable<SongViewModel> songs = await songService.GetAllSongsAsync();
 
             return View(songs);
         }
@@ -28,7 +29,20 @@ namespace MusicApp.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Add()
         {
-            return View();
+            try
+            {
+                AddSongInputModel inputModel = new AddSongInputModel
+                {
+                    Genres=await genreService.GetGenresDropDownAsync()
+                };
+
+                return View(inputModel);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         [HttpPost]
@@ -36,19 +50,24 @@ namespace MusicApp.Web.Controllers
         {
             try
             {
-                if(!ModelState.IsValid)
+                if (!ModelState.IsValid)
                 {
                     return View(inputModel);
                 }
+                bool result = await songService.AddSongAsync(GetUserId()!, inputModel);
 
-                await songService.AddSongAsync(inputModel);
+                if (!result)
+                {
+                    return View(inputModel);
+                }
                 return RedirectToAction(nameof(Index));
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                Console.WriteLine(ex.Message);
-                return View(inputModel);
+                Console.WriteLine(e.Message);
+                return RedirectToAction(nameof(Index));
             }
         }
+
     }
 }

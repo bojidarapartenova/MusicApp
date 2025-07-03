@@ -7,9 +7,8 @@ using MusicApp.Web.ViewModels.Song;
 
 namespace MusicApp.Services.Core.Interfaces
 {
-    public interface ISongService
+    public interface IGenreService
     {
-        Task<IEnumerable<SongViewModel>> GetAllSongsAsync();
-        Task <bool> AddSongAsync(string userId, AddSongInputModel inputModel);
+        Task<IEnumerable<AddSongGenreDropDown>> GetGenresDropDownAsync();
     }
 }
