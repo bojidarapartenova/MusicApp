@@ -1,0 +1,45 @@
+﻿.modal-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.custom-edit-button, .custom-delete-button {
+    display: inline-block;
+    padding: 5px 10px;
+    background-color: #4A5C6A;
+    color: #CCD0CF;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    border: none;
+}
+
+    .custom-edit-button:hover, .custom-delete-button:hover {
+        background-color: #CCD0CF;
+        color: #4A5C6A;
+    }
+
+.btn-primary {
+    background-color: #4A5C6A;
+    border-color: #4A5C6A;
+    color: #CCD0CF;
+}
+
+    .btn-primary:hover {
+        background-color: #CCD0CF;
+        color: #4A5C6A;
+        border-color: #CCD0CF;
+    }
+
+.btn-danger {
+    background-color: #4A5C6A;
+    border-color: #4A5C6A;
+    color: #CCD0CF;
+}
+
+    .btn-danger:hover {
+        background-color: #CCD0CF;
+        color: #4A5C6A;
+        border-color: #CCD0CF;
+    }

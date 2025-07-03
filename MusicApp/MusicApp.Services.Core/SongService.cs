@@ -30,9 +30,14 @@ namespace MusicApp.Services.Core
                 .Select(s => new SongViewModel()
                 {
                     Id = s.Id,
+                    ImageUrl = s.ImageUrl ?? $"/images/no-image.jpg",
                     Title = s.Title,
                     Duration = s.Duration,
-                    ImageUrl = s.ImageUrl ?? $"/images/no-image.jpg"
+                    Artist = s.Artist,
+                    Publisher=s.Publisher.UserName!,
+                    Genre=s.Genre.Name,
+                    ReleaseDate=s.ReleaseDate,
+                    PublisherId=s.PublisherId
                 })
                 .ToArrayAsync();
 
