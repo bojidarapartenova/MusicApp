@@ -1,5 +1,66 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using MusicApp.Web.ViewModels.Song
+@model EditSongInputModel
+
 @{
+	ViewData["Title"] = "Edit Song";
+}
+
+<link href="~/css/style.css" rel="stylesheet" />
+
+<div class="row">
+    <div class="col-md-4">
+        <section>
+            <form asp-action="Edit" method="post">
+                <h1>@ViewData["Title"]</h1>
+                <hr />
+
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="PublisherId" />
+                <input type="hidden" asp-for="ReleaseDate"/>
+
+                <div class="form-group">
+                    <label asp-for="Title">Song Title</label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Artist"></label>
+                    <input asp-for="Artist" class="form-control" />
+                    <span asp-validation-for="Artist" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="GenreId">Select Genre</label>
+                    <select asp-for="GenreId" class="form-control" aria-required="true" asp-items="@(new SelectList(Model.Genres, "GenreId", "Name"))">
+                        <option value="">...</option>
+                    </select>
+                    <span asp-validation-for="@Model.GenreId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Duration"></label>
+                    <input asp-for="Duration" class="form-control" />
+                    <span asp-validation-for="Duration" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ImageUrl"></label>
+                    <input asp-for="ImageUrl" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="AudioUrl"></label>
+                    <input asp-for="AudioUrl" class="form-control" />
+                    <span asp-validation-for="AudioUrl" class="text-danger"></span>
+                </div>
+
+                <button id="btn-add" type="submit" class="w-100 btn btn-lg btn-primary">Save Changes</button>
+            </form>
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
 }

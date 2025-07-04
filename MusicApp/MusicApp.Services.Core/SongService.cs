@@ -9,6 +9,7 @@ using MusicApp.Services.Core.Interfaces;
 using MusicApp.Web.ViewModels.Song;
 using MusicApp.Data.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace MusicApp.Services.Core
 {
@@ -60,7 +61,7 @@ namespace MusicApp.Services.Core
                     GenreId = inputModel.GenreId,
                     Artist = inputModel.Artist,
                     Duration = inputModel.Duration,
-                    ReleaseDate = DateTime.Now,
+                    ReleaseDate = DateTime.UtcNow,
                     Likes = 0,
                     ImageUrl = inputModel.ImageUrl?? $"/images/no-image.jpg",
                     AudioUrl = inputModel.AudioUrl
@@ -70,6 +71,60 @@ namespace MusicApp.Services.Core
                 await dbContext.SaveChangesAsync();
 
                 result = true;
+            }
+            return result;
+        }
+
+        public async Task<EditSongInputModel?> GetSongToEditAsync(string userId, string? songId)
+        {
+            ApplicationUser? user = await userManager.FindByIdAsync(userId);
+            EditSongInputModel? songToEdit = null;
+
+            bool isGuidValid = Guid.TryParse(songId, out Guid id);
+
+            if (isGuidValid)
+            {
+                Song? song = await dbContext.Songs.FindAsync(id);
+
+                if (song != null && song.PublisherId.ToLower()==userId.ToLower())
+                {
+                    songToEdit = new EditSongInputModel()
+                    {
+                        Id = song.Id,
+                        Title = song.Title,
+                        GenreId = song.GenreId,
+                        Artist = song.Artist,
+                        Duration = song.Duration,
+                        Likes= song.Likes,
+                        ImageUrl = song.ImageUrl,
+                        AudioUrl = song.AudioUrl,
+                        PublisherId=userId
+                    };
+                }
+            }
+            return songToEdit;
+        }
+
+        public async Task<bool> EditSongAsync(EditSongInputModel inputModel)
+        {
+            bool result = false;
+
+            Genre? genre=await dbContext.Genres.FindAsync(inputModel.GenreId);
+            Song? editedSong = await dbContext.Songs.FindAsync(inputModel.Id);
+
+            if(genre!=null && editedSong!=null)
+            {
+                editedSong.Title=inputModel.Title;
+                editedSong.GenreId=inputModel.GenreId;
+                editedSong.Artist=inputModel.Artist;
+                editedSong.Duration=inputModel.Duration;
+                editedSong.Likes=inputModel.Likes;
+                editedSong.ImageUrl=inputModel.ImageUrl;
+                editedSong.AudioUrl=inputModel.AudioUrl;
+                editedSong.PublisherId=inputModel.PublisherId;
+
+                await dbContext.SaveChangesAsync();
+                result= true;
             }
             return result;
         }

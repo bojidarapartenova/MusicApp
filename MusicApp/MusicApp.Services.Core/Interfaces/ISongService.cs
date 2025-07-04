@@ -11,5 +11,7 @@ namespace MusicApp.Services.Core.Interfaces
     {
         Task<IEnumerable<SongViewModel>> GetAllSongsAsync();
         Task <bool> AddSongAsync(string userId, AddSongInputModel inputModel);
+        Task<EditSongInputModel?> GetSongToEditAsync(string userId, string? songId);
+        Task<bool> EditSongAsync(EditSongInputModel inputModel);
     }
 }

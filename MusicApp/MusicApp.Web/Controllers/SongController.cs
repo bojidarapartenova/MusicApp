@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using MusicApp.Services.Core.Interfaces;
 using MusicApp.Web.ViewModels.Song;
 using MusicApp.Services.Core;
+using MusicApp.Data.Models;
 
 namespace MusicApp.Web.Controllers
 {
@@ -69,5 +70,56 @@ namespace MusicApp.Web.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Edit(string? id)
+        {
+            try
+            {
+                string userId = GetUserId()!;
+                EditSongInputModel? songToEdit = await
+                    songService.GetSongToEditAsync(userId, id);
+
+                if(songToEdit==null)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+
+                songToEdit.Genres = await genreService.GetGenresDropDownAsync();
+
+                return View(songToEdit);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(EditSongInputModel inputModel)
+        {
+            try
+            {
+                if(!ModelState.IsValid)
+                {
+                    foreach (var key in ModelState.Keys)
+                    {
+                        return View(inputModel);
+                    }
+                }
+                bool result=await songService.EditSongAsync(inputModel);
+
+                if(result==false)
+                {
+                    return View(inputModel);
+                }
+                return RedirectToAction(nameof(Index), new { showModal = true, id = inputModel.Id });
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return RedirectToAction(nameof(Index));
+            }
+        }
     }
 }
