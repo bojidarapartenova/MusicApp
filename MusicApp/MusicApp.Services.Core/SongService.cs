@@ -128,5 +128,51 @@ namespace MusicApp.Services.Core
             }
             return result;
         }
+
+        public async Task<DeleteSongViewModel?> GetSongToDeleteAsync(string userId, string? songId)
+        {
+            DeleteSongViewModel? songToDelete=null;
+
+            bool isGuidValid = Guid.TryParse(songId, out Guid id);
+
+            if(songId!=null)
+            {
+                Song? song=await dbContext
+                    .Songs
+                    .Include(s=>s.Publisher)
+                    .AsNoTracking()
+                    .SingleOrDefaultAsync(s=>s.Id==id);
+
+                if(song!=null && song.PublisherId.ToLower()==userId.ToLower())
+                {
+                    songToDelete = new DeleteSongViewModel()
+                    {
+                        Id = song.Id,
+                        Title = song.Title,
+                        PublisherId=song.PublisherId,
+                        Publisher = song.Publisher.UserName!
+                    };
+                }
+            }
+            return songToDelete;
+        }
+
+        public async Task<bool> SoftDeleteSongAsync(string userId, DeleteSongViewModel viewModel)
+        {
+            bool result = false;
+
+            ApplicationUser? user=await userManager.FindByIdAsync(userId);
+            Song? deletedSong=await dbContext.Songs.FindAsync(viewModel.Id);
+
+            if(user!=null && deletedSong!=null &&
+                deletedSong.PublisherId.ToLower()==userId.ToLower())
+            {
+                deletedSong.IsDeleted=true;
+
+                await dbContext.SaveChangesAsync();
+                result = true;
+            }
+            return result;
+        }
     }
 }

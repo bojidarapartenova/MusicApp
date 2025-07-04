@@ -121,5 +121,51 @@ namespace MusicApp.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Delete(string? id)
+        {
+            try
+            {
+                string userId = GetUserId()!;
+                DeleteSongViewModel? songToDelete=await
+                    songService.GetSongToDeleteAsync(userId, id);
+
+                if(songToDelete==null)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+                return View(songToDelete);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(DeleteSongViewModel viewModel)
+        {
+            try
+            {
+                if(!ModelState.IsValid)
+                {
+                    return View(viewModel);
+                }
+                bool result = await songService.SoftDeleteSongAsync(GetUserId()!, viewModel);
+
+                if(result==false)
+                {
+                    return View(viewModel);
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return RedirectToAction(nameof(Index));
+            }
+        }
     }
 }
