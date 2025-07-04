@@ -2,7 +2,36 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Home</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<link href="~/css/homeIndexStyle.css" rel="stylesheet" />
+
+<div class="welcome text-white" style="background-color: #111;">
+    <main class="text-center mb-5">
+        <h1 style="color: #ccd0cf;">Welcome to MusicApp</h1>
+        <h3>Share and enjoy different versions of your favorite songs!</h3>
+    </main>
+
+    <section class="d-flex justify-content-around flex-wrap text-center mb-5">
+        <div class="info mb-4" style="flex: 1; min-width: 200px; max-width: 300px;">
+            <h4 style="color: #ccd0cf;">Discover</h4>
+            <p>Find remixed versions of your favorite songs and discover new artists.</p>
+        </div>
+
+        <div class="info mb-4" style="flex: 1; min-width: 200px; max-width: 300px;">
+            <h4 style="color: #ccd0cf;">Remix</h4>
+            <p>Upload your own versions and put your spin on original tracks.</p>
+        </div>
+
+        <div class="info mb-4" style="flex: 1; min-width: 200px; max-width: 300px;">
+            <h4 style="color: #ccd0cf;">Credit</h4>
+            <p>Respect the originals. Give credit to the artists you remix.</p>
+        </div>
+    </section>
+
+    <div class="start">
+        <h4>Let your journey begin</h4>
+        <a href="@(User.Identity.IsAuthenticated ? Url.Action("Index", "Song") : "/Identity/Account/Login")">
+            NOW
+        </a>
+    </div>
+
 </div>
