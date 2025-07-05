@@ -1,0 +1,45 @@
+﻿@using MusicApp.Web.ViewModels.Song
+@model IEnumerable<SongViewModel>
+
+@{
+    ViewData["Title"] = "My Releases";
+}
+
+<link href="~/css/myReleasesIndexStyle.css" rel="stylesheet" />
+
+<h2 style="color: #ccd0cf;">My Releases</h2>
+
+@if (!Model.Any())
+{
+    <p style="color: #888; margin-top: 2rem;">You haven't released any songs yet. When you do, they will appear here!</p>
+}
+else
+{
+    <table class="release-table">
+        <thead>
+            <tr>
+                <th>Cover</th>
+                <th>Title</th>
+                <th>Release Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var song in Model)
+            {
+                <tr>
+                    <td>
+                        <img src="@song.ImageUrl" alt="Cover" style="height: 60px; border-radius: 5px;" />
+                    </td>
+                    <td>@song.Title</td>
+                    <td>@song.ReleaseDate.ToString("yyyy-MM-dd")</td>
+                    <td>
+                        <a class="btn-action" href="@Url.Action("Listen", "Song", new { id = song.Id })">Listen</a>
+                        <a class="btn-action" href="@Url.Action("Edit", "Song", new { id = song.Id })">Edit</a>
+                        <a class="btn-action delete" href="@Url.Action("Delete", "Song", new { id = song.Id })">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
