@@ -1,10 +1,11 @@
 ﻿namespace MusicApp.Data.Data
 {
+    using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore;
     using MusicApp.Data.Models;
 
-    public class MusicAppDbContext : IdentityDbContext<ApplicationUser>
+    public class MusicAppDbContext : IdentityDbContext<ApplicationUser, IdentityRole, string>
     {
         public MusicAppDbContext(DbContextOptions<MusicAppDbContext> options)
             : base(options)

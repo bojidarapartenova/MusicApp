@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MusicApp.Data\MusicApp.Data.csproj" />
+    <ProjectReference Include="..\MusicApp.Web.Infrastructure\MusicApp.Web.Infrastructure.csproj" />
     <ProjectReference Include="..\MusicApp.Web.ViewModels\MusicApp.Web.ViewModels.csproj" />
     <ProjectReference Include="..\MusicApp.Services.Core\MusicApp.Services.Core.csproj" />
   </ItemGroup>

@@ -5,11 +5,13 @@ using MusicApp.Data.Models;
 using MusicApp.Services.Core;
 using MusicApp.Services.Core.Interfaces;
 
+using MusicApp.Web.Infrastructure;
+
 namespace MusicApp.Web
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +21,7 @@ namespace MusicApp.Web
                 options.UseSqlServer(connectionString));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-            builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
                 options.SignIn.RequireConfirmedAccount = false;
                 options.Password.RequireDigit = false;
@@ -27,13 +29,18 @@ namespace MusicApp.Web
                 options.Password.RequireUppercase = false;
                 options.Password.RequireLowercase = false;
             })
-                .AddEntityFrameworkStores<MusicAppDbContext>();
+                .AddEntityFrameworkStores<MusicAppDbContext>()
+                .AddRoles<IdentityRole>()
+                .AddSignInManager<SignInManager<ApplicationUser>>()
+                .AddUserManager<UserManager<ApplicationUser>>();
 
             builder.Services.AddScoped<ISongService, SongService>();
             builder.Services.AddScoped<IGenreService, GenreService>();
             builder.Services.AddScoped<IMyReleasesService, MyReleasesService>();
 
             builder.Services.AddControllersWithViews();
+
+            builder.Services.AddRazorPages();
 
             var app = builder.Build();
 
@@ -57,12 +64,14 @@ namespace MusicApp.Web
             app.UseAuthentication();
             app.UseAuthorization();
 
+            await app.SeedAdminAsync();
+
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
             app.MapRazorPages();
 
-            app.Run();
+            await app.RunAsync();
         }
     }
 }
