@@ -175,9 +175,9 @@ namespace MusicApp.Services.Core
             return result;
         }
 
-        public async Task<SongViewModel> GetSongByIdAsync(string songId)
+        public async Task<SongViewModel?> GetSongByIdAsync(string songId)
         {
-            SongViewModel song = await dbContext.Songs
+            SongViewModel? song = await dbContext.Songs
                 .Select(s => new SongViewModel()
                 {
                     Id = s.Id,
@@ -186,8 +186,10 @@ namespace MusicApp.Services.Core
                     ImageUrl = s.ImageUrl,
                     Duration = s.Duration,
                     PublisherId = s.PublisherId,
+                    Publisher=s.Publisher.UserName!,
                     ReleaseDate = s.ReleaseDate,
-                    Genre = s.Genre.Name
+                    Genre = s.Genre.Name,
+                    AudioUrl=s.AudioUrl
                 })
                 .FirstOrDefaultAsync(s => s.Id.ToString() == songId);
 

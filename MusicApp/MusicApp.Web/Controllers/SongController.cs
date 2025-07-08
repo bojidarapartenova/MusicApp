@@ -171,14 +171,22 @@ namespace MusicApp.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Listen(string id)
         {
-            var song = await songService.GetSongByIdAsync(id);
-
-            if (song == null)
+            try
             {
-                return NotFound();
-            }
+                SongViewModel? song = await songService.GetSongByIdAsync(id);
 
-            return View(song);
+                if(song==null)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+
+                return View(song);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return RedirectToAction(nameof(Index));
+            }
         }
     }
 }

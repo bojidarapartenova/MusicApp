@@ -1,136 +1,101 @@
-﻿@model MusicApp.Web.ViewModels.Song.SongViewModel
+﻿@using MusicApp.Web.ViewModels.Song
+@model SongViewModel
 
 @{
     ViewData["Title"] = "Now Playing";
+    var durationInMinutes = $"{Model.Duration / 60:D2}:{Model.Duration % 60:D2}";
 }
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 <style>
-    body {
-        background: url('@Model.ImageUrl') no-repeat center center fixed;
-        background-size: cover;
-        backdrop-filter: blur(10px);
-        height: 100vh;
-        color: white;
-        font-family: 'Segoe UI', sans-serif;
-    }
-
-    .overlay {
-        background-color: rgba(0, 0, 0, 0.7);
-        height: 100%;
-        padding: 40px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .song-cover {
-        width: 300px;
-        height: 300px;
-        object-fit: cover;
-        border-radius: 20px;
-        box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
-    }
-
-    .song-info {
-        margin-top: 30px;
-        text-align: center;
-    }
-
-        .song-info h2 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-
-    .controls {
-        margin-top: 30px;
-        display: flex;
-        gap: 30px;
-        justify-content: center;
-        align-items: center;
-    }
-
-        .controls button {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.8rem;
-            transition: transform 0.2s ease-in-out;
-        }
-
-            .controls button:hover {
-                transform: scale(1.2);
-                color: #1db954; /* Spotify green */
-            }
-
-    .progress-container {
-        width: 60%;
-        margin-top: 30px;
-    }
-
-    .progress-bar {
-        width: 100%;
+    body{
+        background-color:#111;
     }
 </style>
 
-<div class="overlay">
-    <img src="@Model.ImageUrl" alt="@Model.Title" class="song-cover" />
+<div class="listen-container" style="
+    max-width:400px;
+    margin:2rem auto;
+    padding:1rem;
+    background-color:#1e1e1e;
+    color:white;
+    border-radius:12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    font-family:Arial, sans-serif;
+    text-align:center;
+">
+    <img src="@Model.ImageUrl" alt="Cover" style="
+        width:100%;
+        height:300px;
+        object-fit:cover;
+        border-radius:10px;
+    " />
 
-    <div class="song-info">
-        <h2>@Model.Title</h2>
-        <p>@Model.Artist</p>
+    <h3 style="margin-top:1rem;margin-bottom:0.5rem;">@Model.Title</h3>
+    <p style="color:gray; font-size:0.9rem;">@Model.Artist • @Model.Publisher</p>
+
+    <audio id="audioPlayer" src="@Model.AudioUrl" preload="metadata" hidden></audio>
+
+    <input type="range" id="progressBar" value="0" step="1" style="
+        width:100%;
+        margin-top:1rem;
+        appearance: none;
+        height:5px;
+        background: #444;
+        border-radius:5px;
+        outline: none;
+    " />
+
+    <div style="margin-top:0.25rem; font-size:0.85rem; color:#bbb;" id="timeDisplay">
+        0:00 / @durationInMinutes
     </div>
 
-    <div class="controls">
-        <button id="playBtn" title="Play/Pause">
-            ▶️
-        </button>
-        <button id="likeBtn" title="Like">
-            ❤️
-        </button>
-        <button id="commentBtn" title="Comment">
-            💬
-        </button>
-    </div>
-
-    <div class="progress-container">
-        <input type="range" id="durationSlider" class="form-range progress-bar" min="0" max="@Model.Duration.TotalSeconds" value="0" step="1" />
-        <div class="d-flex justify-content-between text-light small">
-            <span id="currentTime">0:00</span>
-            @* <span id="totalTime">@Model.Duration.Minutes:@(Model.Duration.Seconds.ToString("D2"))</span> *@
-        </div>
+    <div style="display:flex;justify-content:space-between;gap:0.5rem;margin-top:1rem;">
+        <button onclick="togglePlay()" id="playBtn" class="btn btn-light w-100">Pause</button>
+        <button class="btn btn-outline-light w-100">Like</button>
+        <button class="btn btn-outline-light w-100">Comment</button>
+        <button class="btn btn-outline-light w-100">Add to Playlist</button>
     </div>
 </div>
 
-<script>
-    const slider = document.getElementById("durationSlider");
-    const currentTimeLabel = document.getElementById("currentTime");
+@section Scripts {
+    <script>
+        const audio = document.getElementById("audioPlayer");
+        const playBtn = document.getElementById("playBtn");
+        const progressBar = document.getElementById("progressBar");
+        const timeDisplay = document.getElementById("timeDisplay");
 
-    let current = 0;
-    let playing = false;
-    let interval = null;
+        audio.play();
+        let isPlaying = true;
 
-    document.getElementById("playBtn").addEventListener("click", () => {
-        playing = !playing;
-
-        if (playing) {
-            interval = setInterval(() => {
-                if (current < parseInt(slider.max)) {
-                    current++;
-                    slider.value = current;
-                    currentTimeLabel.textContent = formatTime(current);
-                } else {
-                    clearInterval(interval);
-                }
-            }, 1000);
-        } else {
-            clearInterval(interval);
+        function togglePlay() {
+            if (audio.paused) {
+                audio.play();
+                playBtn.innerText = "Pause";
+            } else {
+                audio.pause();
+                playBtn.innerText = "Play";
+            }
         }
-    });
 
-    function formatTime(sec) {
-        const minutes = Math.floor(sec / 60);
-        const seconds = sec % 60;
-        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-    }
-</script>
+        audio.addEventListener("loadedmetadata", function () {
+            progressBar.max = Math.floor(audio.duration);
+        });
+
+        audio.addEventListener("timeupdate", function () {
+            progressBar.value = Math.floor(audio.currentTime);
+            const current = formatTime(audio.currentTime);
+            const total = formatTime(audio.duration);
+            timeDisplay.innerText = `${current} / ${total}`;
+        });
+
+        progressBar.addEventListener("input", function () {
+            audio.currentTime = progressBar.value;
+        });
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+    </script>
+}
