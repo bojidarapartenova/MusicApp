@@ -1,0 +1,136 @@
+﻿@model MusicApp.Web.ViewModels.Song.SongViewModel
+
+@{
+    ViewData["Title"] = "Now Playing";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<style>
+    body {
+        background: url('@Model.ImageUrl') no-repeat center center fixed;
+        background-size: cover;
+        backdrop-filter: blur(10px);
+        height: 100vh;
+        color: white;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .overlay {
+        background-color: rgba(0, 0, 0, 0.7);
+        height: 100%;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .song-cover {
+        width: 300px;
+        height: 300px;
+        object-fit: cover;
+        border-radius: 20px;
+        box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+    }
+
+    .song-info {
+        margin-top: 30px;
+        text-align: center;
+    }
+
+        .song-info h2 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+    .controls {
+        margin-top: 30px;
+        display: flex;
+        gap: 30px;
+        justify-content: center;
+        align-items: center;
+    }
+
+        .controls button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            transition: transform 0.2s ease-in-out;
+        }
+
+            .controls button:hover {
+                transform: scale(1.2);
+                color: #1db954; /* Spotify green */
+            }
+
+    .progress-container {
+        width: 60%;
+        margin-top: 30px;
+    }
+
+    .progress-bar {
+        width: 100%;
+    }
+</style>
+
+<div class="overlay">
+    <img src="@Model.ImageUrl" alt="@Model.Title" class="song-cover" />
+
+    <div class="song-info">
+        <h2>@Model.Title</h2>
+        <p>@Model.Artist</p>
+    </div>
+
+    <div class="controls">
+        <button id="playBtn" title="Play/Pause">
+            ▶️
+        </button>
+        <button id="likeBtn" title="Like">
+            ❤️
+        </button>
+        <button id="commentBtn" title="Comment">
+            💬
+        </button>
+    </div>
+
+    <div class="progress-container">
+        <input type="range" id="durationSlider" class="form-range progress-bar" min="0" max="@Model.Duration.TotalSeconds" value="0" step="1" />
+        <div class="d-flex justify-content-between text-light small">
+            <span id="currentTime">0:00</span>
+            @* <span id="totalTime">@Model.Duration.Minutes:@(Model.Duration.Seconds.ToString("D2"))</span> *@
+        </div>
+    </div>
+</div>
+
+<script>
+    const slider = document.getElementById("durationSlider");
+    const currentTimeLabel = document.getElementById("currentTime");
+
+    let current = 0;
+    let playing = false;
+    let interval = null;
+
+    document.getElementById("playBtn").addEventListener("click", () => {
+        playing = !playing;
+
+        if (playing) {
+            interval = setInterval(() => {
+                if (current < parseInt(slider.max)) {
+                    current++;
+                    slider.value = current;
+                    currentTimeLabel.textContent = formatTime(current);
+                } else {
+                    clearInterval(interval);
+                }
+            }, 1000);
+        } else {
+            clearInterval(interval);
+        }
+    });
+
+    function formatTime(sec) {
+        const minutes = Math.floor(sec / 60);
+        const seconds = sec % 60;
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+</script>

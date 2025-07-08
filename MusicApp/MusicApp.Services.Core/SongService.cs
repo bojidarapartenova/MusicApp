@@ -174,5 +174,24 @@ namespace MusicApp.Services.Core
             }
             return result;
         }
+
+        public async Task<SongViewModel> GetSongByIdAsync(string songId)
+        {
+            SongViewModel song = await dbContext.Songs
+                .Select(s => new SongViewModel()
+                {
+                    Id = s.Id,
+                    Title = s.Title,
+                    Artist = s.Artist,
+                    ImageUrl = s.ImageUrl,
+                    Duration = s.Duration,
+                    PublisherId = s.PublisherId,
+                    ReleaseDate = s.ReleaseDate,
+                    Genre = s.Genre.Name
+                })
+                .FirstOrDefaultAsync(s => s.Id.ToString() == songId);
+
+            return song;
+        }
     }
 }

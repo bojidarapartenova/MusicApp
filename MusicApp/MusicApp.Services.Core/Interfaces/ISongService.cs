@@ -15,5 +15,6 @@ namespace MusicApp.Services.Core.Interfaces
         Task<bool> EditSongAsync(EditSongInputModel inputModel);
         Task<DeleteSongViewModel?> GetSongToDeleteAsync(string userId, string? songId);
         Task<bool> SoftDeleteSongAsync(string userId, DeleteSongViewModel viewModel);
+        Task<SongViewModel> GetSongByIdAsync(string songId);
     }
 }

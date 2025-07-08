@@ -167,5 +167,18 @@ namespace MusicApp.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Listen(string id)
+        {
+            var song = await songService.GetSongByIdAsync(id);
+
+            if (song == null)
+            {
+                return NotFound();
+            }
+
+            return View(song);
+        }
     }
 }
