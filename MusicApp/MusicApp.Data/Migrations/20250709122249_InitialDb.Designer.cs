@@ -9,11 +9,11 @@ using MusicApp.Data.Data;
 
 #nullable disable
 
-namespace MusicApp.Web.Data.Migrations
+namespace MusicApp.Data.Migrations
 {
     [DbContext(typeof(MusicAppDbContext))]
-    [Migration("20250701105601_AddIsDeletedToSongs")]
-    partial class AddIsDeletedToSongs
+    [Migration("20250709122249_InitialDb")]
+    partial class InitialDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -105,12 +105,10 @@ namespace MusicApp.Web.Data.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderKey")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("nvarchar(max)");
@@ -147,12 +145,10 @@ namespace MusicApp.Web.Data.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Value")
                         .HasColumnType("nvarchar(max)");
@@ -252,6 +248,51 @@ namespace MusicApp.Web.Data.Migrations
                     b.ToTable("Comments");
                 });
 
+            modelBuilder.Entity("MusicApp.Data.Models.Genre", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Genres");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Pop"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "R&B"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Hip Hop"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Rock"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Electronic"
+                        });
+                });
+
             modelBuilder.Entity("MusicApp.Data.Models.Like", b =>
                 {
                     b.Property<Guid>("Id")
@@ -343,14 +384,19 @@ namespace MusicApp.Web.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("Artist")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("AudioUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Duration")
+                        .HasColumnType("int");
+
+                    b.Property<int>("GenreId")
                         .HasColumnType("int");
 
                     b.Property<string>("ImageUrl")
@@ -362,6 +408,10 @@ namespace MusicApp.Web.Data.Migrations
                     b.Property<int>("Likes")
                         .HasColumnType("int");
 
+                    b.Property<string>("PublisherId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime>("ReleaseDate")
                         .HasColumnType("datetime2");
 
@@ -372,7 +422,9 @@ namespace MusicApp.Web.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationUserId");
+                    b.HasIndex("GenreId");
+
+                    b.HasIndex("PublisherId");
 
                     b.ToTable("Songs");
                 });
@@ -501,9 +553,21 @@ namespace MusicApp.Web.Data.Migrations
 
             modelBuilder.Entity("MusicApp.Data.Models.Song", b =>
                 {
-                    b.HasOne("MusicApp.Data.Models.ApplicationUser", null)
+                    b.HasOne("MusicApp.Data.Models.Genre", "Genre")
+                        .WithMany("Songs")
+                        .HasForeignKey("GenreId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MusicApp.Data.Models.ApplicationUser", "Publisher")
                         .WithMany("UploadedSongs")
-                        .HasForeignKey("ApplicationUserId");
+                        .HasForeignKey("PublisherId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Genre");
+
+                    b.Navigation("Publisher");
                 });
 
             modelBuilder.Entity("MusicApp.Data.Models.ApplicationUser", b =>
@@ -513,6 +577,11 @@ namespace MusicApp.Web.Data.Migrations
                     b.Navigation("Playlists");
 
                     b.Navigation("UploadedSongs");
+                });
+
+            modelBuilder.Entity("MusicApp.Data.Models.Genre", b =>
+                {
+                    b.Navigation("Songs");
                 });
 
             modelBuilder.Entity("MusicApp.Data.Models.Playlist", b =>
