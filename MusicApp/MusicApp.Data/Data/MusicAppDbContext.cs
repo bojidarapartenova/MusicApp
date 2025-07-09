@@ -65,6 +65,12 @@
                 .HasForeignKey(s => s.GenreId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.Entity<Playlist>()
+                .HasOne(p=>p.User)
+                .WithMany(u=>u.Playlists)
+                .HasForeignKey(u => u.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             builder.Entity<Genre>()
                 .HasData(
                 new Genre { Id = 1, Name = "Pop" },
