@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MusicApp.Data.Models;
 using MusicApp.Web.ViewModels.Playlists;
+using MusicApp.Web.ViewModels.Song;
 
 namespace MusicApp.Services.Core.Interfaces
 {
@@ -12,5 +13,7 @@ namespace MusicApp.Services.Core.Interfaces
     {
         Task<ICollection<Playlist>> GetUserPlaylistsAsync(string userId);
         Task CreatePlaylistAsync(CreatePlaylistViewModel viewModel, string userId);
+        Task<DeletePlaylistViewModel?> GetPlaylistToDeleteAsync(string userId, string? playlistId);
+        Task<bool> SoftDeletePlaylistAsync(string userId, DeletePlaylistViewModel viewModel);
     }
 }

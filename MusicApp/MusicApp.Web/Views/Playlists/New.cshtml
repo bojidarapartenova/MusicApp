@@ -5,9 +5,14 @@
     ViewData["Title"] = "Create New Playlist";
 }
 
-<h2>Create New Playlist</h2>
+<link href="~/css/style.css" rel="stylesheet" />
 
+<div class="row">
+    <div class="col-md-4">
+        <section>
 <form asp-action="New" method="post">
+    <h1>Create New Playlist</h1>
+    <hr/>
     <div class="mb-3">
         <label asp-for="Title" class="form-label">Playlist Title</label>
         <input asp-for="Title" class="form-control" />
@@ -38,8 +43,11 @@
         </div>
     </div>
 
-    <button type="submit" class="btn btn-success">Create Playlist</button>
+    <button id="btn-add" type="submit" class="btn btn-success">Create Playlist</button>
 </form>
+        </section>
+    </div>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

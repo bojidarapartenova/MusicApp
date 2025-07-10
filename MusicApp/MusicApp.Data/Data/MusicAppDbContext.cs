@@ -50,6 +50,9 @@
             builder.Entity<Song>()
                 .HasQueryFilter(s => s.IsDeleted == false);
 
+            builder.Entity<Playlist>()
+                .HasQueryFilter(p => p.IsDeleted == false);
+
             builder.Entity<Comment>()
                 .HasQueryFilter(c => c.Song.IsDeleted == false);
 
