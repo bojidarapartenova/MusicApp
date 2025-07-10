@@ -32,5 +32,23 @@ namespace MusicApp.Services.Core
 
             return playlists;
         }
+
+        public async Task CreatePlaylistAsync(CreatePlaylistViewModel viewModel, string userId)
+        {
+            var playlist = new Playlist
+            {
+                Id = Guid.NewGuid(),
+                Title = viewModel.Title,
+                ImageUrl = viewModel.ImageUrl,
+                UserId = userId,
+                PlaylistsSongs = viewModel.SelectedSongsIds.Select(songId => new PlaylistSong
+                {
+                    SongId = songId
+                }).ToList()
+            };
+
+            dbContext.Playlists.Add(playlist);
+            await dbContext.SaveChangesAsync();
+        }
     }
 }

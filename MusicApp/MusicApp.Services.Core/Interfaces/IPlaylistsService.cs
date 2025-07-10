@@ -11,5 +11,6 @@ namespace MusicApp.Services.Core.Interfaces
     public interface IPlaylistsService
     {
         Task<ICollection<Playlist>> GetUserPlaylistsAsync(string userId);
+        Task CreatePlaylistAsync(CreatePlaylistViewModel viewModel, string userId);
     }
 }

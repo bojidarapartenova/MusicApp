@@ -27,7 +27,7 @@
             color: #4A5C6A;
     }
 </style>
-
+<link href="~/css/songIndexStyle.css" rel="stylesheet" />
 <h2>Your Playlists</h2>
 
 <a asp-action="New" class="btn btn-primary mb-3" id="btn-playlist">New Playlist</a>
@@ -38,25 +38,25 @@
 }
 else
 {
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Songs Count</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var playlist in Model)
-            {
-                <tr>
-                    <td>@playlist.Title</td>
-                    <td>@playlist.PlaylistsSongs?.Count ?? 0</td>
-                    <td>
-                        <a asp-action="Details" asp-route-id="@playlist.Id" class="btn btn-sm btn-info">View</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div class="song-container">
+        @foreach (var song in Model)
+        {
+            <div class="song-card">
+                <img src="@song.ImageUrl" alt="@song.Title" class="song-image" />
+                <div class="song-title">@song.Title</div>
+
+                <div class="buttons">
+                    <button type="button" class="details-button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#songDetailsModal"
+                            data-id="@song.Id"
+                            data-editurl="@Url.Action("Edit", "Song", new { id = song.Id })"
+                            data-deleteurl="@Url.Action("Delete", "Song", new { id = song.Id })"
+                            >
+                        View
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
 }
