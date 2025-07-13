@@ -17,10 +17,12 @@ namespace MusicApp.Services.Core
     {
         private readonly MusicAppDbContext dbContext;
         private readonly UserManager<ApplicationUser> userManager;
-        public SongService(MusicAppDbContext dbContext, UserManager<ApplicationUser> userManager)
+        private readonly IPlaylistsService playlistService;
+        public SongService(MusicAppDbContext dbContext, UserManager<ApplicationUser> userManager, IPlaylistsService playlistsService)
         {
             this.dbContext = dbContext;
             this.userManager = userManager;
+            this.playlistService = playlistsService;
         }
 
         public async Task<IEnumerable<SongViewModel>> GetAllSongsAsync()

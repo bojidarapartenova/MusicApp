@@ -49,15 +49,13 @@ namespace MusicApp.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> New(CreatePlaylistViewModel viewModel)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return View(viewModel);
             }
 
-            var userId=GetUserId()!;
-
+            var userId = GetUserId()!;
             await playlistsService.CreatePlaylistAsync(viewModel, userId);
-
             return RedirectToAction(nameof(Index));
         }
 
@@ -107,5 +105,25 @@ namespace MusicApp.Web.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ViewPlaylist(Guid id)
+        {
+            var playlist=await playlistsService.GetPlaylistDetailsAsync(id);
+
+            if(playlist == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }    
+
+            return View(playlist);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveSong(Guid playlistId, Guid songId)
+        {
+            bool result=await playlistsService.RemoveSongAsync(playlistId, songId);
+
+            return RedirectToAction(nameof(ViewPlaylist), new { id = playlistId });
+        }
     }
 }

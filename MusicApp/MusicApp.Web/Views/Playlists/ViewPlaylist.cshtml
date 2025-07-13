@@ -1,0 +1,40 @@
+﻿@using MusicApp.Web.ViewModels.Playlists
+@model PlaylistDetailsViewModel
+
+@{
+    ViewData["Title"] = "Your playlist";
+}
+
+<link href="~/css/viewPlaylistStyle.css" rel="stylesheet" />
+
+<h1>@Model.Title</h1>
+
+<h2>Songs</h2>
+
+@if (Model.Songs.Any())
+{
+    <table class="playlist-table">
+        <tbody>
+            @foreach (var song in Model.Songs)
+            {
+                <tr>
+                    <td>
+                        <img src="@song.ImageUrl" alt="Cover" style="height: 60px; border-radius: 5px;" />
+                    </td>
+                    <td>@song.Title</td>
+                    <td>
+                        <a class="btn-action" href="@Url.Action("Listen", "Song", new { id = song.Id })">Listen</a>
+                        <form asp-action="RemoveSong" asp-route-playlistId="@Model.Id" asp-route-songId="@song.Id" method="post" style="display:inline;">
+                            <button type="submit" class="btn-action delete">Remove from playlist</button>
+                        </form>
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>This playlist has no songs.</p>
+}

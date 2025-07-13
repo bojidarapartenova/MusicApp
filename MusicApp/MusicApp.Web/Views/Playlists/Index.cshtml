@@ -26,13 +26,9 @@ else
                 <div class="playlist-title">@playlist.Title</div>
 
                 <div class="buttons">
-                    <button type="button" class="details-button"
-                            data-bs-toggle="modal"
-                            data-bs-target="#playlistDetailsModal"
-                            data-id="@playlist.Id">
+                    <a asp-controller="Playlists" asp-action="ViewPlaylist" asp-route-id="@playlist.Id" class="btn btn-primary details-button">
                         View
-                    </button>
-
+                    </a>
                     @if (!playlist.IsDefault)
                     {
                         <a asp-action="Delete" asp-route-id="@playlist.Id" class="delete-button">Delete</a>

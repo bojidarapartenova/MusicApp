@@ -14,7 +14,7 @@ namespace MusicApp.Web.ViewModels.Playlists
         [MaxLength(50)]
         public string Title { get; set; } = null!;
         public string? ImageUrl {  get; set; }
-        public List<Guid> SelectedSongsIds { get; set; } = new();
-        public List<SongViewModel> Songs { get; set; }= new();
+        public List<Guid> SelectedSongsIds { get; set; } = new List<Guid>();
+        public IEnumerable<SongViewModel> Songs { get; set; }= new List<SongViewModel>();
     }
 }

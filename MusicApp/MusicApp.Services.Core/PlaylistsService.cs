@@ -36,17 +36,22 @@ namespace MusicApp.Services.Core
 
         public async Task CreatePlaylistAsync(CreatePlaylistViewModel viewModel, string userId)
         {
-            var playlist = new Playlist
+            Playlist playlist = new Playlist()
             {
                 Id = Guid.NewGuid(),
                 Title = viewModel.Title,
                 ImageUrl = viewModel.ImageUrl,
-                UserId = userId,
-                PlaylistsSongs = viewModel.SelectedSongsIds.Select(songId => new PlaylistSong
-                {
-                    SongId = songId
-                }).ToList()
+                UserId = userId
             };
+
+            foreach(var songId in viewModel.SelectedSongsIds)
+            {
+                playlist.PlaylistsSongs.Add(new PlaylistSong()
+                {
+                    PlaylistId = playlist.Id,
+                    SongId = songId
+                });
+            }
 
             dbContext.Playlists.Add(playlist);
             await dbContext.SaveChangesAsync();
@@ -120,7 +125,79 @@ namespace MusicApp.Services.Core
             return await dbContext
                 .Playlists
                 .Include(p=>p.PlaylistsSongs)
-                .FirstOrDefaultAsync(p=>p.UserId.ToLower()==userId.ToLower() && p.IsDefault);
+                .FirstOrDefaultAsync(p=>p.UserId.ToLower()==userId && p.IsDefault);
+        }
+
+        public async Task<IEnumerable<SongViewModel>> GetAllSongsInPlaylistAssync(string playlistId)
+        {
+            if (!Guid.TryParse(playlistId, out var playlistGuid))
+                return Enumerable.Empty<SongViewModel>(); // Invalid ID
+
+            var songs = await dbContext
+                .PlaylistsSongs
+                .Where(ps => ps.PlaylistId == playlistGuid)
+                .Include(ps => ps.Song)
+                    .ThenInclude(s => s.Publisher)
+                .Include(ps => ps.Song)
+                    .ThenInclude(s => s.Genre)
+                .Select(ps => new SongViewModel
+                {
+                    Id = ps.Song.Id,
+                    ImageUrl = ps.Song.ImageUrl,
+                    Title = ps.Song.Title,
+                    Duration = ps.Song.Duration,
+                    Artist = ps.Song.Artist,
+                    PublisherId = ps.Song.PublisherId,
+                    Publisher = ps.Song.Publisher.UserName ?? ps.Song.Publisher.Email!,
+                    Genre = ps.Song.Genre.Name,
+                    ReleaseDate = ps.Song.ReleaseDate
+                })
+                .ToArrayAsync();
+
+            return songs;
+        }
+
+        public async Task<PlaylistDetailsViewModel?> GetPlaylistDetailsAsync(Guid playlistId)
+        {
+            var playlist = await dbContext
+                .Playlists
+                .Where(p => p.Id == playlistId)
+                .Select(p => new PlaylistDetailsViewModel()
+                {
+                    Id = p.Id,
+                    Title = p.Title,
+                    Songs = p.PlaylistsSongs
+                    .Select(ps => new SongViewModel()
+                    {
+                        Id = ps.SongId,
+                        Title = ps.Song.Title,
+                        Artist = ps.Song.Artist,
+                        ImageUrl = ps.Song.ImageUrl,
+                        AudioUrl = ps.Song.AudioUrl
+                    })
+                    .ToList()
+                })
+                .FirstOrDefaultAsync();
+
+            return playlist;
+        }
+
+        public async Task<bool> RemoveSongAsync(Guid playlistId, Guid songId)
+        {
+            bool result = false;
+
+            var songToRemove = await dbContext
+                .PlaylistsSongs
+                .FirstOrDefaultAsync(ps => ps.PlaylistId == playlistId && ps.SongId == songId);
+
+            if(songToRemove != null)
+            {
+                dbContext.PlaylistsSongs.Remove(songToRemove);
+                await dbContext.SaveChangesAsync();
+                result = true;
+            }
+
+            return result;
         }
     }
 }

@@ -51,10 +51,16 @@
 
     <div style="display:flex;justify-content:space-between;gap:0.5rem;margin-top:1rem;">
         <button onclick="togglePlay()" id="playBtn" class="btn btn-light w-100">Pause</button>
-        <button class="btn btn-outline-light w-100">Like</button>
+
+        <form asp-action="Like" method="post" style="flex: 1;">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button type="submit" class="btn btn-outline-light w-100">Like</button>
+        </form>
+
         <button class="btn btn-outline-light w-100">Comment</button>
         <button class="btn btn-outline-light w-100">Add to Playlist</button>
     </div>
+
 </div>
 
 @section Scripts {

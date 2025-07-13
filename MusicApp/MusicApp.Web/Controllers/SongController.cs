@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicApp.Services.Core.Interfaces;
 using MusicApp.Web.ViewModels.Song;
-using MusicApp.Services.Core;
-using MusicApp.Data.Models;
 
 namespace MusicApp.Web.Controllers
 {
@@ -12,10 +10,12 @@ namespace MusicApp.Web.Controllers
     {
         private readonly ISongService songService;
         private readonly IGenreService genreService;
-        public SongController(ISongService songService, IGenreService genreService)
+        private readonly IPlaylistsService playlistService;
+        public SongController(ISongService songService, IGenreService genreService, IPlaylistsService playlistsService)
         {
             this.songService = songService;
             this.genreService = genreService;
+            this.playlistService = playlistsService;
         }
 
         [HttpGet]
@@ -34,12 +34,12 @@ namespace MusicApp.Web.Controllers
             {
                 AddSongInputModel inputModel = new AddSongInputModel
                 {
-                    Genres=await genreService.GetGenresDropDownAsync()
+                    Genres = await genreService.GetGenresDropDownAsync()
                 };
 
                 return View(inputModel);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(e.Message);
                 return RedirectToAction(nameof(Index));
@@ -79,7 +79,7 @@ namespace MusicApp.Web.Controllers
                 EditSongInputModel? songToEdit = await
                     songService.GetSongToEditAsync(userId, id);
 
-                if(songToEdit==null)
+                if (songToEdit == null)
                 {
                     return RedirectToAction(nameof(Index));
                 }
@@ -100,16 +100,16 @@ namespace MusicApp.Web.Controllers
         {
             try
             {
-                if(!ModelState.IsValid)
+                if (!ModelState.IsValid)
                 {
                     foreach (var key in ModelState.Keys)
                     {
                         return View(inputModel);
                     }
                 }
-                bool result=await songService.EditSongAsync(inputModel);
+                bool result = await songService.EditSongAsync(inputModel);
 
-                if(result==false)
+                if (result == false)
                 {
                     return View(inputModel);
                 }
@@ -128,10 +128,10 @@ namespace MusicApp.Web.Controllers
             try
             {
                 string userId = GetUserId()!;
-                DeleteSongViewModel? songToDelete=await
+                DeleteSongViewModel? songToDelete = await
                     songService.GetSongToDeleteAsync(userId, id);
 
-                if(songToDelete==null)
+                if (songToDelete == null)
                 {
                     return RedirectToAction(nameof(Index));
                 }
@@ -149,13 +149,13 @@ namespace MusicApp.Web.Controllers
         {
             try
             {
-                if(!ModelState.IsValid)
+                if (!ModelState.IsValid)
                 {
                     return View(viewModel);
                 }
                 bool result = await songService.SoftDeleteSongAsync(GetUserId()!, viewModel);
 
-                if(result==false)
+                if (result == false)
                 {
                     return View(viewModel);
                 }
@@ -175,7 +175,7 @@ namespace MusicApp.Web.Controllers
             {
                 SongViewModel? song = await songService.GetSongByIdAsync(id);
 
-                if(song==null)
+                if (song == null)
                 {
                     return RedirectToAction(nameof(Index));
                 }
