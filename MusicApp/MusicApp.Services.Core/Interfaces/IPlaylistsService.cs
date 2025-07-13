@@ -11,6 +11,8 @@ namespace MusicApp.Services.Core.Interfaces
 {
     public interface IPlaylistsService
     {
+        Task EnsureFavoritesPlaylistExistsAsync(string userId);
+        Task<Playlist?> GetFavoritesPlaylistAsync(string userId);
         Task<ICollection<Playlist>> GetUserPlaylistsAsync(string userId);
         Task CreatePlaylistAsync(CreatePlaylistViewModel viewModel, string userId);
         Task<DeletePlaylistViewModel?> GetPlaylistToDeleteAsync(string userId, string? playlistId);

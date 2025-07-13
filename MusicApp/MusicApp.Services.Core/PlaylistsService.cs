@@ -93,5 +93,34 @@ namespace MusicApp.Services.Core
             }
             return result;
         }
+
+        public async Task EnsureFavoritesPlaylistExistsAsync(string userId)
+        {
+            bool exists= await dbContext
+                .Playlists
+                .AnyAsync(p=>p.UserId.ToLower()==userId.ToLower() && p.IsDefault);
+
+            if(!exists)
+            {
+                Playlist favorites = new Playlist
+                {
+                    Title = "Favorites",
+                    IsDefault = true,
+                    UserId = userId,
+                    ImageUrl = "https://misc.scdn.co/liked-songs/liked-songs-300.jpg"
+                };
+
+                dbContext.Playlists.Add(favorites);
+                await dbContext.SaveChangesAsync();
+            }
+        }
+
+        public async Task<Playlist?> GetFavoritesPlaylistAsync(string userId)
+        {
+            return await dbContext
+                .Playlists
+                .Include(p=>p.PlaylistsSongs)
+                .FirstOrDefaultAsync(p=>p.UserId.ToLower()==userId.ToLower() && p.IsDefault);
+        }
     }
 }

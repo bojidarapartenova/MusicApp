@@ -33,7 +33,10 @@ else
                         View
                     </button>
 
-                    <a asp-action="Delete" asp-route-id="@playlist.Id" class="delete-button">Delete</a>
+                    @if (!playlist.IsDefault)
+                    {
+                        <a asp-action="Delete" asp-route-id="@playlist.Id" class="delete-button">Delete</a>
+                    }
                 </div>
 
             </div>

@@ -19,6 +19,9 @@ namespace MusicApp.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
+            var userId = GetUserId()!;
+            await playlistsService.EnsureFavoritesPlaylistExistsAsync(userId);
+
             var playlists = await playlistsService
                 .GetUserPlaylistsAsync(GetUserId()!);
 
