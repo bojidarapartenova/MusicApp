@@ -1,5 +1,9 @@
-﻿using CinemaApp.Web.Controllers;
+﻿using System.Collections.Generic;
+using CinemaApp.Web.Controllers;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using MusicApp.Data.Models;
+using MusicApp.Services.Core;
 using MusicApp.Services.Core.Interfaces;
 using MusicApp.Web.ViewModels.Playlists;
 using MusicApp.Web.ViewModels.Song;

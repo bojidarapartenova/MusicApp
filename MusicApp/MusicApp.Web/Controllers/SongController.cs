@@ -173,14 +173,54 @@ namespace MusicApp.Web.Controllers
         {
             try
             {
-                SongViewModel? song = await songService.GetSongByIdAsync(id);
-
+                var userId = GetUserId();
+                var song = await songService.GetSongByIdAsync(id);
                 if (song == null)
                 {
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction("Index");
+                }
+
+                if (userId != null)
+                {
+                    song.IsLiked = await playlistService.IsSongFavoritesAsync(userId, song.Id);
+                }
+                else
+                {
+                    song.IsLiked = false;
                 }
 
                 return View(song);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Like([FromBody] Guid id)
+        {
+            try
+            {
+                if(!ModelState.IsValid)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+                string useId = GetUserId()!;
+
+                bool isInFavorites = await playlistService.IsSongFavoritesAsync(useId, id);
+
+                if (isInFavorites)
+                {
+                    await playlistService.RemoveSongFromFavoritesAsync(useId, id);
+                }
+                else
+                {
+                    await playlistService.AddSongToFavoritesAsync(useId, id);
+                }
+
+                return Json(new { liked = !isInFavorites });
             }
             catch (Exception e)
             {

@@ -18,5 +18,6 @@ namespace MusicApp.Web.ViewModels.Song
         public DateTime ReleaseDate { get; set; }
         public string PublisherId { get; set; } = null!; 
         public string AudioUrl { get; set; } = null!;
+        public bool IsLiked { get; set; }
     }
 }

@@ -199,5 +199,51 @@ namespace MusicApp.Services.Core
 
             return result;
         }
+
+        public async Task AddSongToFavoritesAsync(string userId, Guid songId)
+        {
+            var favorites = await dbContext
+                .Playlists
+                .Include(p => p.PlaylistsSongs)
+                .FirstOrDefaultAsync(p => p.UserId.ToLower() == userId.ToLower() && p.IsDefault);
+
+            bool exists=favorites!.PlaylistsSongs.Any(ps=>ps.SongId == songId);
+
+            if(!exists)
+            {
+                favorites.PlaylistsSongs.Add(new PlaylistSong()
+                {
+                    PlaylistId = favorites.Id,
+                    SongId = songId
+                });
+                await dbContext.SaveChangesAsync();
+            }
+        }
+
+        public async Task RemoveSongFromFavoritesAsync(string userId, Guid songId)
+        {
+            var favorites = await dbContext
+               .Playlists
+               .Include(p => p.PlaylistsSongs)
+               .FirstOrDefaultAsync(p => p.UserId.ToLower() == userId.ToLower() && p.IsDefault);
+
+            var entry=favorites!.PlaylistsSongs.FirstOrDefault(ps=>ps.SongId==songId);
+
+            if(entry!=null)
+            {
+                dbContext.Remove(entry);
+                await dbContext.SaveChangesAsync();
+            }
+        }
+
+        public async Task<bool> IsSongFavoritesAsync(string userId, Guid songId)
+        {
+            var favorites = await dbContext
+              .Playlists
+              .Include(p => p.PlaylistsSongs)
+              .FirstOrDefaultAsync(p => p.UserId.ToLower() == userId.ToLower() && p.IsDefault);
+
+            return favorites!.PlaylistsSongs.Any(ps => ps.SongId == songId);
+        }
     }
 }

@@ -21,5 +21,8 @@ namespace MusicApp.Services.Core.Interfaces
         Task<IEnumerable<SongViewModel>> GetAllSongsInPlaylistAssync(string playlistId);
         Task<PlaylistDetailsViewModel?> GetPlaylistDetailsAsync(Guid playlistId);
         Task<bool> RemoveSongAsync(Guid playlistId, Guid songId);
+        Task AddSongToFavoritesAsync(string userId, Guid songId);
+        Task RemoveSongFromFavoritesAsync(string userId, Guid songId);
+        Task<bool> IsSongFavoritesAsync(string userId, Guid songId);
     }
 }

@@ -52,10 +52,15 @@
     <div style="display:flex;justify-content:space-between;gap:0.5rem;margin-top:1rem;">
         <button onclick="togglePlay()" id="playBtn" class="btn btn-light w-100">Pause</button>
 
-        <form asp-action="Like" method="post" style="flex: 1;">
-            <input type="hidden" name="id" value="@Model.Id" />
-            <button type="submit" class="btn btn-outline-light w-100">Like</button>
-        </form>
+        @Html.AntiForgeryToken()
+
+        <button id="likeButton"
+                data-song-id="@Model.Id"
+                class="btn w-100 @(Model.IsLiked ? "btn-danger" : "btn-outline-light")">
+            @(Model.IsLiked ? "Liked" : "Like")
+        </button>
+
+
 
         <button class="btn btn-outline-light w-100">Comment</button>
         <button class="btn btn-outline-light w-100">Add to Playlist</button>
@@ -104,4 +109,34 @@
             return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
         }
     </script>
+
+    <script>
+        document.getElementById('likeButton').addEventListener('click', function () {
+            const btn = this;
+            const songId = btn.getAttribute('data-song-id');
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            fetch('/Song/Like', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify(songId)
+            })
+            .then(res => res.json())
+                    .then(data => {
+            if (data.liked) {
+                btn.classList.remove('btn-outline-light');
+                btn.classList.add('btn-danger');
+                btn.innerText = 'Liked';
+            } else {
+                btn.classList.remove('btn-danger');
+                btn.classList.add('btn-outline-light');
+                btn.innerText = 'Like';
+            }
+            });
+        });
+    </script>
+
 }
