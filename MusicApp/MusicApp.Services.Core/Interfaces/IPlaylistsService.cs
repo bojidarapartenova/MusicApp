@@ -15,7 +15,6 @@ namespace MusicApp.Services.Core.Interfaces
         Task<Playlist?> GetFavoritesPlaylistAsync(string userId);
         Task<ICollection<Playlist>> GetUserPlaylistsAsync(string userId);
         Task CreatePlaylistAsync(CreatePlaylistViewModel viewModel, string userId);
-
         Task<DeletePlaylistViewModel?> GetPlaylistToDeleteAsync(string userId, string? playlistId);
         Task<bool> SoftDeletePlaylistAsync(string userId, DeletePlaylistViewModel viewModel);
         Task<IEnumerable<SongViewModel>> GetAllSongsInPlaylistAssync(string playlistId);
@@ -24,5 +23,6 @@ namespace MusicApp.Services.Core.Interfaces
         Task AddSongToFavoritesAsync(string userId, Guid songId);
         Task RemoveSongFromFavoritesAsync(string userId, Guid songId);
         Task<bool> IsSongFavoritesAsync(string userId, Guid songId);
+        Task AddSongsToPlaylistAsync(Guid playlistId, List<Guid> songIds);
     }
 }

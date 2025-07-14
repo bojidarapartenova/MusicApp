@@ -1,9 +1,5 @@
-﻿using System.Collections.Generic;
-using CinemaApp.Web.Controllers;
-using Microsoft.AspNetCore.Identity;
+﻿using CinemaApp.Web.Controllers;
 using Microsoft.AspNetCore.Mvc;
-using MusicApp.Data.Models;
-using MusicApp.Services.Core;
 using MusicApp.Services.Core.Interfaces;
 using MusicApp.Web.ViewModels.Playlists;
 using MusicApp.Web.ViewModels.Song;
@@ -35,32 +31,49 @@ namespace MusicApp.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> New()
         {
-            var songs = await songService.GetAllSongsAsync();
-
-            var viewModel = new CreatePlaylistViewModel
+            try
             {
-                Songs = songs.Select(s => new SongViewModel
-                {
-                    Id = s.Id,
-                    Title = s.Title,
-                    Artist = s.Artist
-                }).ToList()
-            };
+                var songs = await songService.GetAllSongsAsync();
 
-            return View(viewModel);
+                var viewModel = new CreatePlaylistViewModel
+                {
+                    Songs = songs.Select(s => new SongViewModel
+                    {
+                        Id = s.Id,
+                        Title = s.Title,
+                        Artist = s.Artist,
+                        ImageUrl = s.ImageUrl
+                    }).ToList()
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> New(CreatePlaylistViewModel viewModel)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return View(viewModel);
-            }
+                if (!ModelState.IsValid)
+                {
+                    return View(viewModel);
+                }
 
-            var userId = GetUserId()!;
-            await playlistsService.CreatePlaylistAsync(viewModel, userId);
-            return RedirectToAction(nameof(Index));
+                var userId = GetUserId()!;
+                await playlistsService.CreatePlaylistAsync(viewModel, userId);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         [HttpGet]
@@ -112,22 +125,66 @@ namespace MusicApp.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> ViewPlaylist(Guid id)
         {
-            var playlist=await playlistsService.GetPlaylistDetailsAsync(id);
-
-            if(playlist == null)
+            try
             {
-                return RedirectToAction(nameof(Index));
-            }    
+                var playlist = await playlistsService.GetPlaylistDetailsAsync(id);
 
-            return View(playlist);
+                if (playlist == null)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+
+                return View(playlist);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> RemoveSong(Guid playlistId, Guid songId)
         {
-            bool result=await playlistsService.RemoveSongAsync(playlistId, songId);
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return View(nameof(Index));
+                }
 
-            return RedirectToAction(nameof(ViewPlaylist), new { id = playlistId });
+                bool result = await playlistsService.RemoveSongAsync(playlistId, songId);
+
+                return RedirectToAction(nameof(ViewPlaylist), new { id = playlistId });
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddSongsToPlaylist(Guid playlistId, List<Guid> selectedSongIds)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return View(nameof(Index));
+                }
+                if (selectedSongIds != null && selectedSongIds.Any())
+                {
+                    await playlistsService.AddSongsToPlaylistAsync(playlistId, selectedSongIds);
+                }
+
+                return RedirectToAction(nameof(ViewPlaylist), new { id = playlistId });
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return RedirectToAction(nameof(Index));
+            }
         }
     }
 }

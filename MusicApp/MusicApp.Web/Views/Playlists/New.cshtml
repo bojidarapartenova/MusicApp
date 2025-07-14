@@ -5,6 +5,30 @@
     ViewData["Title"] = "Create New Playlist";
 }
 
+<style>
+    .scrollable-checkboxes {
+        max-height: 210px;
+        overflow-y: auto;
+        padding: 8px;
+        border-radius: 5px;
+    }
+
+        .scrollable-checkboxes > div {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px; 
+        }
+
+        .scrollable-checkboxes input.form-check-input {
+            position: static; 
+            transform: none; 
+            margin: 0; 
+        }
+
+
+</style>
+
 <link href="~/css/style.css" rel="stylesheet" />
 
 <div class="row">
@@ -27,7 +51,7 @@
 
     <div class="mb-3">
         <label>Select Songs</label>
-        <div class="form-check">
+         <div class="form-check scrollable-checkboxes">
             @foreach (var song in Model.Songs)
             {
                 <div>
@@ -36,7 +60,8 @@
                            value="@song.Id"
                            id="song-@song.Id" />
                     <label class="form-check-label" for="song-@song.Id">
-                        @song.Title by @song.Artist
+                       <img src="@song.ImageUrl" style="height:40px;" />
+                        @song.Title
                     </label>
                 </div>
             }

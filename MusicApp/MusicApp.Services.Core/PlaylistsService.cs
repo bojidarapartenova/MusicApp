@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MusicApp.Data.Data;
 using MusicApp.Data.Models;
@@ -13,12 +8,12 @@ using MusicApp.Web.ViewModels.Song;
 
 namespace MusicApp.Services.Core
 {
-    public class PlaylistsService:IPlaylistsService
+    public class PlaylistsService : IPlaylistsService
     {
         private readonly MusicAppDbContext dbContext;
         private readonly UserManager<ApplicationUser> userManager;
 
-        public PlaylistsService (MusicAppDbContext dbContext, UserManager<ApplicationUser> userManager)
+        public PlaylistsService(MusicAppDbContext dbContext, UserManager<ApplicationUser> userManager)
         {
             this.dbContext = dbContext;
             this.userManager = userManager;
@@ -44,7 +39,7 @@ namespace MusicApp.Services.Core
                 UserId = userId
             };
 
-            foreach(var songId in viewModel.SelectedSongsIds)
+            foreach (var songId in viewModel.SelectedSongsIds)
             {
                 playlist.PlaylistsSongs.Add(new PlaylistSong()
                 {
@@ -101,11 +96,11 @@ namespace MusicApp.Services.Core
 
         public async Task EnsureFavoritesPlaylistExistsAsync(string userId)
         {
-            bool exists= await dbContext
+            bool exists = await dbContext
                 .Playlists
-                .AnyAsync(p=>p.UserId.ToLower()==userId.ToLower() && p.IsDefault);
+                .AnyAsync(p => p.UserId.ToLower() == userId.ToLower() && p.IsDefault);
 
-            if(!exists)
+            if (!exists)
             {
                 Playlist favorites = new Playlist
                 {
@@ -124,8 +119,8 @@ namespace MusicApp.Services.Core
         {
             return await dbContext
                 .Playlists
-                .Include(p=>p.PlaylistsSongs)
-                .FirstOrDefaultAsync(p=>p.UserId.ToLower()==userId && p.IsDefault);
+                .Include(p => p.PlaylistsSongs)
+                .FirstOrDefaultAsync(p => p.UserId.ToLower() == userId && p.IsDefault);
         }
 
         public async Task<IEnumerable<SongViewModel>> GetAllSongsInPlaylistAssync(string playlistId)
@@ -157,30 +152,54 @@ namespace MusicApp.Services.Core
             return songs;
         }
 
-        public async Task<PlaylistDetailsViewModel?> GetPlaylistDetailsAsync(Guid playlistId)
+        public async Task<PlaylistDetailsViewModel> GetPlaylistDetailsAsync(Guid playlistId)
         {
             var playlist = await dbContext
                 .Playlists
-                .Where(p => p.Id == playlistId)
-                .Select(p => new PlaylistDetailsViewModel()
-                {
-                    Id = p.Id,
-                    Title = p.Title,
-                    Songs = p.PlaylistsSongs
-                    .Select(ps => new SongViewModel()
-                    {
-                        Id = ps.SongId,
-                        Title = ps.Song.Title,
-                        Artist = ps.Song.Artist,
-                        ImageUrl = ps.Song.ImageUrl,
-                        AudioUrl = ps.Song.AudioUrl
-                    })
-                    .ToList()
-                })
-                .FirstOrDefaultAsync();
+                .Include(p => p.PlaylistsSongs)
+                    .ThenInclude(ps => ps.Song)
+                .FirstOrDefaultAsync(p => p.Id == playlistId && !p.IsDeleted);
 
-            return playlist;
+            if (playlist == null)
+            {
+                return null!;
+            }
+
+            var songsInPlaylist = playlist.PlaylistsSongs
+                .Select(ps => ps.Song)
+                .ToList();
+
+            var allSongs = await dbContext.Songs
+                .Where(s => !s.IsDeleted)
+                .ToListAsync();
+
+            var availableSongs = allSongs
+                .Where(s => songsInPlaylist.All(pSong => pSong.Id != s.Id))
+                .ToList();
+
+            return new PlaylistDetailsViewModel
+            {
+                Id = playlist.Id,
+                Title = playlist.Title,
+
+                Songs = songsInPlaylist.Select(s => new SongViewModel
+                {
+                    Id = s.Id,
+                    Title = s.Title,
+                    Artist = s.Artist,
+                    ImageUrl = s.ImageUrl
+                }).ToList(),
+
+                AvailableSongs = availableSongs.Select(s => new SongViewModel
+                {
+                    Id = s.Id,
+                    Title = s.Title,
+                    Artist = s.Artist,
+                    ImageUrl = s.ImageUrl
+                }).ToList()
+            };
         }
+
 
         public async Task<bool> RemoveSongAsync(Guid playlistId, Guid songId)
         {
@@ -190,7 +209,7 @@ namespace MusicApp.Services.Core
                 .PlaylistsSongs
                 .FirstOrDefaultAsync(ps => ps.PlaylistId == playlistId && ps.SongId == songId);
 
-            if(songToRemove != null)
+            if (songToRemove != null)
             {
                 dbContext.PlaylistsSongs.Remove(songToRemove);
                 await dbContext.SaveChangesAsync();
@@ -207,9 +226,9 @@ namespace MusicApp.Services.Core
                 .Include(p => p.PlaylistsSongs)
                 .FirstOrDefaultAsync(p => p.UserId.ToLower() == userId.ToLower() && p.IsDefault);
 
-            bool exists=favorites!.PlaylistsSongs.Any(ps=>ps.SongId == songId);
+            bool exists = favorites!.PlaylistsSongs.Any(ps => ps.SongId == songId);
 
-            if(!exists)
+            if (!exists)
             {
                 favorites.PlaylistsSongs.Add(new PlaylistSong()
                 {
@@ -227,9 +246,9 @@ namespace MusicApp.Services.Core
                .Include(p => p.PlaylistsSongs)
                .FirstOrDefaultAsync(p => p.UserId.ToLower() == userId.ToLower() && p.IsDefault);
 
-            var entry=favorites!.PlaylistsSongs.FirstOrDefault(ps=>ps.SongId==songId);
+            var entry = favorites!.PlaylistsSongs.FirstOrDefault(ps => ps.SongId == songId);
 
-            if(entry!=null)
+            if (entry != null)
             {
                 dbContext.Remove(entry);
                 await dbContext.SaveChangesAsync();
@@ -244,6 +263,30 @@ namespace MusicApp.Services.Core
               .FirstOrDefaultAsync(p => p.UserId.ToLower() == userId.ToLower() && p.IsDefault);
 
             return favorites!.PlaylistsSongs.Any(ps => ps.SongId == songId);
+        }
+
+        public async Task AddSongsToPlaylistAsync(Guid playlistId, List<Guid> songIds)
+        {
+            var playlist = await dbContext
+                .Playlists
+                .Include(p => p.PlaylistsSongs)
+                .FirstOrDefaultAsync(p => p.Id == playlistId);
+
+            if (playlist != null)
+            {
+                foreach (var songId in songIds)
+                {
+                    if (!playlist.PlaylistsSongs.Any(ps => ps.SongId == songId))
+                    {
+                        playlist.PlaylistsSongs.Add(new PlaylistSong()
+                        {
+                            PlaylistId = playlistId,
+                            SongId = songId
+                        });
+                    }
+                }
+            }
+            await dbContext.SaveChangesAsync();
         }
     }
 }
