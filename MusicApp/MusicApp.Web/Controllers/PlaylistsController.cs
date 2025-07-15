@@ -1,5 +1,6 @@
 ﻿using CinemaApp.Web.Controllers;
 using Microsoft.AspNetCore.Mvc;
+using MusicApp.Services.Core;
 using MusicApp.Services.Core.Interfaces;
 using MusicApp.Web.ViewModels.Playlists;
 using MusicApp.Web.ViewModels.Song;
@@ -179,6 +180,53 @@ namespace MusicApp.Web.Controllers
                 }
 
                 return RedirectToAction(nameof(ViewPlaylist), new { id = playlistId });
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(string? id)
+        {
+            try
+            {
+                string userId = GetUserId()!;
+                EditPlaylistInputModel? playlistToEdit = await
+                    playlistsService.GetPlaylistToEditAsync(userId, id);
+
+                if (playlistToEdit == null)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+
+                return View(playlistToEdit);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(EditPlaylistInputModel inputModel)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return View(inputModel);
+                }
+                bool result = await playlistsService.EditPlaylistAsync(inputModel);
+
+                if (result == false)
+                {
+                    return View(inputModel);
+                }
+                return RedirectToAction(nameof(ViewPlaylist), new { id = inputModel.Id });
             }
             catch (Exception e)
             {

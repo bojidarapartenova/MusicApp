@@ -35,7 +35,7 @@ namespace MusicApp.Services.Core
             {
                 Id = Guid.NewGuid(),
                 Title = viewModel.Title,
-                ImageUrl = viewModel.ImageUrl,
+                ImageUrl = viewModel.ImageUrl ?? $"/images/no-image.jpg",
                 UserId = userId
             };
 
@@ -138,7 +138,7 @@ namespace MusicApp.Services.Core
                 .Select(ps => new SongViewModel
                 {
                     Id = ps.Song.Id,
-                    ImageUrl = ps.Song.ImageUrl,
+                    ImageUrl = ps.Song.ImageUrl ?? $"/images/no-image.jpg",
                     Title = ps.Song.Title,
                     Duration = ps.Song.Duration,
                     Artist = ps.Song.Artist,
@@ -181,13 +181,14 @@ namespace MusicApp.Services.Core
             {
                 Id = playlist.Id,
                 Title = playlist.Title,
+                IsDeafault=playlist.IsDefault,
 
                 Songs = songsInPlaylist.Select(s => new SongViewModel
                 {
                     Id = s.Id,
                     Title = s.Title,
                     Artist = s.Artist,
-                    ImageUrl = s.ImageUrl
+                    ImageUrl = s.ImageUrl ?? $"/images/no-image.jpg"
                 }).ToList(),
 
                 AvailableSongs = availableSongs.Select(s => new SongViewModel
@@ -195,7 +196,7 @@ namespace MusicApp.Services.Core
                     Id = s.Id,
                     Title = s.Title,
                     Artist = s.Artist,
-                    ImageUrl = s.ImageUrl
+                    ImageUrl = s.ImageUrl ?? $"/images/no-image.jpg"
                 }).ToList()
             };
         }
@@ -287,6 +288,46 @@ namespace MusicApp.Services.Core
                 }
             }
             await dbContext.SaveChangesAsync();
+        }
+
+        public async Task<EditPlaylistInputModel?> GetPlaylistToEditAsync(string userId, string? playlistId)
+        {
+            ApplicationUser? user=await userManager.FindByIdAsync(userId);
+            EditPlaylistInputModel? playlistToEdit= null;
+
+            bool isGuidValid=Guid.TryParse(playlistId, out Guid id);
+
+            if(isGuidValid)
+            {
+                Playlist? playlist = await dbContext.Playlists.FindAsync(id);
+
+                if(playlist != null)
+                {
+                    playlistToEdit = new EditPlaylistInputModel()
+                    {
+                        Title = playlist.Title,
+                        ImageUrl = playlist.ImageUrl ?? $"/images/no-image.jpg"
+                    };
+                }
+            }
+            return playlistToEdit;
+        }
+
+        public async Task<bool> EditPlaylistAsync(EditPlaylistInputModel inputModel)
+        {
+            bool result = false;
+
+            Playlist? editedPlaylist = await dbContext.Playlists.FindAsync(inputModel.Id);
+
+            if(editedPlaylist != null)
+            {
+                editedPlaylist.Title = inputModel.Title;
+                editedPlaylist.ImageUrl = inputModel.ImageUrl;
+
+                await dbContext.SaveChangesAsync();
+                result = true;
+            }
+            return result;
         }
     }
 }

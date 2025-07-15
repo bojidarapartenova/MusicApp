@@ -35,13 +35,13 @@
                         var returnUrl = Url.Action("Listen", "Song", new { id = song.Id });
                     }
 
-                    @if (User.Identity.IsAuthenticated)
+                    @if (User.Identity!.IsAuthenticated)
                     {
                         <a class="listen-button" asp-controller="Song" asp-action="Listen" asp-route-id="@song.Id">Listen</a>
                     }
                     else
                     {
-                        <a class="listen-button" href="~/Identity/Account/Login?returnUrl=@Uri.EscapeDataString(returnUrl)">Login to Listen</a>
+                        <a class="listen-button" href="~/Identity/Account/Login?returnUrl=@Uri.EscapeDataString(returnUrl!)">Login to Listen</a>
                     }
 
 

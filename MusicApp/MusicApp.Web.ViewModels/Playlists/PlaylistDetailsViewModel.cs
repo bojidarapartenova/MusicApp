@@ -11,6 +11,7 @@ namespace MusicApp.Web.ViewModels.Playlists
     {
         public Guid Id { get; set; }
         public string Title { get; set; } = null!;
+        public bool IsDeafault {  get; set; }
         public List<SongViewModel> Songs { get; set; }=new List<SongViewModel>();
         public List<SongViewModel> AvailableSongs { get; set; } = new List<SongViewModel>();
     }

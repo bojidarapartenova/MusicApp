@@ -24,5 +24,7 @@ namespace MusicApp.Services.Core.Interfaces
         Task RemoveSongFromFavoritesAsync(string userId, Guid songId);
         Task<bool> IsSongFavoritesAsync(string userId, Guid songId);
         Task AddSongsToPlaylistAsync(Guid playlistId, List<Guid> songIds);
+        Task<EditPlaylistInputModel?> GetPlaylistToEditAsync(string userId, string? playlistId);
+        Task<bool> EditPlaylistAsync(EditPlaylistInputModel inputModel);
     }
 }
