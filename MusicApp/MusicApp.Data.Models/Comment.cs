@@ -23,5 +23,13 @@ namespace MusicApp.Data.Models
         [Required]
         [MaxLength(150)]
         public string Text { get; set; } = null!;
+
+        [Required]
+        public string UserId { get; set; } = null!;
+
+        [ForeignKey(nameof(UserId))]
+        public ApplicationUser User { get; set; } = null!;
+
+        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
     }
 }

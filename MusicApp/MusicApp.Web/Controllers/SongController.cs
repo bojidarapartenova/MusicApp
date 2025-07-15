@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicApp.Services.Core.Interfaces;
+using MusicApp.Web.ViewModels.Comment;
 using MusicApp.Web.ViewModels.Song;
 
 namespace MusicApp.Web.Controllers
@@ -189,6 +190,8 @@ namespace MusicApp.Web.Controllers
                     song.IsLiked = false;
                 }
 
+                song.Comments =await songService.GetCommentsAsync(song.Id);
+
                 return View(song);
             }
             catch (Exception e)
@@ -227,6 +230,20 @@ namespace MusicApp.Web.Controllers
                 Console.WriteLine(e.Message);
                 return RedirectToAction(nameof(Index));
             }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> PostComment(PostCommentInputModel inputModel)
+        {
+            if(!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(Listen), new { id = inputModel.SongId });
+            }
+
+            string userId=GetUserId()!;
+            await songService.AddCommentAsync(inputModel, userId);
+
+            return RedirectToAction(nameof(Listen), new { id = inputModel.SongId });
         }
     }
 }

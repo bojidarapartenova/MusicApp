@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MusicApp.Web.ViewModels.Comment;
 
 namespace MusicApp.Web.ViewModels.Song
 {
@@ -19,5 +20,6 @@ namespace MusicApp.Web.ViewModels.Song
         public string PublisherId { get; set; } = null!; 
         public string AudioUrl { get; set; } = null!;
         public bool IsLiked { get; set; }
+        public IEnumerable<CommentViewModel> Comments { get; set; }=new List<CommentViewModel>();
     }
 }

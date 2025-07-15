@@ -66,6 +66,38 @@
         <button class="btn btn-outline-light w-100">Add to Playlist</button>
     </div>
 
+    <hr style="margin-top:2rem; border-color: #444;" />
+
+    <h4 style="margin-bottom:1rem;">Comments</h4>
+
+    <!-- Comment Form -->
+    <form asp-action="PostComment" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="SongId" value="@Model.Id" />
+        <textarea name="Text" class="form-control mb-2" placeholder="Add a comment..." maxlength="150" required></textarea>
+        <button type="submit" class="btn btn-sm btn-success">Post</button>
+    </form>
+
+    <!-- Comments List -->
+    <div class="comments-section" style="margin-top:1rem; text-align:left;">
+        @if (Model.Comments != null && Model.Comments.Any())
+        {
+            foreach (var comment in Model.Comments)
+            {
+                <div style="padding:0.5rem; border-bottom:1px solid #333;">
+                    <strong>@comment.Username</strong>
+                    <small style="color:gray;"> - @comment.CreatedOn.ToShortTimeString() @comment.CreatedOn.ToShortDateString()</small>
+                    <p style="margin:0.2rem 0;">@comment.Text</p>
+                </div>
+            }
+        }
+        else
+        {
+            <p style="color:gray;">No comments yet. Be the first!</p>
+        }
+    </div>
+
+
 </div>
 
 @section Scripts {

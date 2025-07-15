@@ -10,6 +10,8 @@ using MusicApp.Web.ViewModels.Song;
 using MusicApp.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Internal;
+using MusicApp.Web.ViewModels.Comment;
+using System.ComponentModel;
 
 namespace MusicApp.Services.Core
 {
@@ -196,6 +198,37 @@ namespace MusicApp.Services.Core
                 .FirstOrDefaultAsync(s => s.Id.ToString() == songId);
 
             return song;
+        }
+
+        public async Task AddCommentAsync(PostCommentInputModel inputModel, string userId)
+        {
+            Comment comment = new Comment()
+            {
+                Id = Guid.NewGuid(),
+                SongId = inputModel.SongId,
+                Text = inputModel.Text,
+                UserId = userId,
+                CreatedOn = DateTime.UtcNow
+            };
+            await dbContext.Comments.AddAsync(comment);
+            await dbContext.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<CommentViewModel>> GetCommentsAsync(Guid songId)
+        {
+            var comments = await dbContext
+                .Comments
+                .Where(c => c.SongId == songId)
+                .OrderByDescending(c => c.CreatedOn)
+                .Select(c => new CommentViewModel()
+                {
+                    Username = c.User.UserName!,
+                    Text = c.Text,
+                    CreatedOn = c.CreatedOn
+                })
+                .ToListAsync();
+
+            return comments;
         }
     }
 }
