@@ -38,6 +38,7 @@ namespace MusicApp.Web
             builder.Services.AddScoped<IGenreService, GenreService>();
             builder.Services.AddScoped<IMyReleasesService, MyReleasesService>();
             builder.Services.AddScoped<IPlaylistsService, PlaylistsService>();
+            builder.Services.AddScoped<ICommentService, CommentService>();
 
             builder.Services.AddControllersWithViews();
 

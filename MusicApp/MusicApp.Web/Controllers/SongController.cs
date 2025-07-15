@@ -12,11 +12,13 @@ namespace MusicApp.Web.Controllers
         private readonly ISongService songService;
         private readonly IGenreService genreService;
         private readonly IPlaylistsService playlistService;
-        public SongController(ISongService songService, IGenreService genreService, IPlaylistsService playlistsService)
+        private readonly ICommentService commentService;
+        public SongController(ISongService songService, IGenreService genreService, IPlaylistsService playlistsService, ICommentService commentService)
         {
             this.songService = songService;
             this.genreService = genreService;
             this.playlistService = playlistsService;
+            this.commentService = commentService;
         }
 
         [HttpGet]
@@ -190,7 +192,7 @@ namespace MusicApp.Web.Controllers
                     song.IsLiked = false;
                 }
 
-                song.Comments =await songService.GetCommentsAsync(song.Id);
+                song.Comments = await commentService.GetCommentsAsync(song.Id, userId!);
 
                 return View(song);
             }
@@ -206,7 +208,7 @@ namespace MusicApp.Web.Controllers
         {
             try
             {
-                if(!ModelState.IsValid)
+                if (!ModelState.IsValid)
                 {
                     return RedirectToAction(nameof(Index));
                 }
@@ -235,15 +237,49 @@ namespace MusicApp.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> PostComment(PostCommentInputModel inputModel)
         {
-            if(!ModelState.IsValid)
+            try
             {
+                if (!ModelState.IsValid)
+                {
+                    return RedirectToAction(nameof(Listen), new { id = inputModel.SongId });
+                }
+
+                string userId = GetUserId()!;
+                await commentService.AddCommentAsync(inputModel, userId);
+
                 return RedirectToAction(nameof(Listen), new { id = inputModel.SongId });
             }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return RedirectToAction(nameof(Index));
+            }
+        }
 
-            string userId=GetUserId()!;
-            await songService.AddCommentAsync(inputModel, userId);
+        [HttpPost]
+        public async Task<IActionResult> DeleteComment(DeleteCommentViewModel viewModel)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return RedirectToAction("Listen", "Song", new { id = viewModel.SongId });
+                }
 
-            return RedirectToAction(nameof(Listen), new { id = inputModel.SongId });
+                string userId = GetUserId()!;
+                var comment = await commentService.GetCommentToDeleteAsync(userId, viewModel.Id);
+                if(comment != null)
+                {
+                    bool result=await commentService.SoftDeleteCommentAsync(userId, comment);
+                }
+
+                return RedirectToAction("Listen", "Song", new { id = viewModel.SongId });
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return RedirectToAction("Index", "Home");
+            }
         }
     }
 }

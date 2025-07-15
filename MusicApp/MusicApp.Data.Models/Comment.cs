@@ -31,5 +31,6 @@ namespace MusicApp.Data.Models
         public ApplicationUser User { get; set; } = null!;
 
         public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
+        public bool IsDeleted { get; set; }=false;
     }
 }

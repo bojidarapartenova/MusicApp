@@ -19,12 +19,10 @@ namespace MusicApp.Services.Core
     {
         private readonly MusicAppDbContext dbContext;
         private readonly UserManager<ApplicationUser> userManager;
-        private readonly IPlaylistsService playlistService;
-        public SongService(MusicAppDbContext dbContext, UserManager<ApplicationUser> userManager, IPlaylistsService playlistsService)
+        public SongService(MusicAppDbContext dbContext, UserManager<ApplicationUser> userManager)
         {
             this.dbContext = dbContext;
             this.userManager = userManager;
-            this.playlistService = playlistsService;
         }
 
         public async Task<IEnumerable<SongViewModel>> GetAllSongsAsync()
@@ -199,36 +197,6 @@ namespace MusicApp.Services.Core
 
             return song;
         }
-
-        public async Task AddCommentAsync(PostCommentInputModel inputModel, string userId)
-        {
-            Comment comment = new Comment()
-            {
-                Id = Guid.NewGuid(),
-                SongId = inputModel.SongId,
-                Text = inputModel.Text,
-                UserId = userId,
-                CreatedOn = DateTime.UtcNow
-            };
-            await dbContext.Comments.AddAsync(comment);
-            await dbContext.SaveChangesAsync();
-        }
-
-        public async Task<IEnumerable<CommentViewModel>> GetCommentsAsync(Guid songId)
-        {
-            var comments = await dbContext
-                .Comments
-                .Where(c => c.SongId == songId)
-                .OrderByDescending(c => c.CreatedOn)
-                .Select(c => new CommentViewModel()
-                {
-                    Username = c.User.UserName!,
-                    Text = c.Text,
-                    CreatedOn = c.CreatedOn
-                })
-                .ToListAsync();
-
-            return comments;
-        }
+        
     }
 }

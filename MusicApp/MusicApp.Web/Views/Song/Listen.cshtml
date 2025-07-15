@@ -38,24 +38,37 @@
 
         <hr />
 
-        <form asp-action="PostComment" method="post">
+        <form id="commentForm" asp-action="PostComment" method="post">
             @Html.AntiForgeryToken()
             <input type="hidden" name="SongId" value="@Model.Id" />
             <textarea name="Text" class="form-control mb-2" placeholder="Add a comment..." maxlength="150" required></textarea>
-            <button type="submit" id="btn-post" class="btn btn-sm btn-success">Post</button>
+            <button id="btn-post" type="submit" class="btn btn-sm btn-success">Post</button>
         </form>
+
 
         <div class="scrollable-comments mt-3">
             @if (Model.Comments != null && Model.Comments.Any())
             {
-                foreach (var comment in Model.Comments)
+                @foreach (var comment in Model.Comments)
                 {
-                    <div style="padding:0.5rem; border-bottom:1px solid #333;">
+                    <div style="padding:0.5rem; border-bottom:1px solid #333; position:relative;">
                         <strong>@comment.Username</strong>
                         <small style="color:gray;"> - @comment.CreatedOn.ToShortTimeString() @comment.CreatedOn.ToShortDateString()</small>
                         <p style="margin:0.2rem 0;">@comment.Text</p>
+
+                        @if (comment.IsOwner)
+                        {
+                            <form class="delete-comment-form" asp-action="DeleteComment" method="post" style="position:absolute; top:0.5rem; right:0.5rem;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="Id" value="@comment.Id" />
+                                <input type="hidden" name="SongId" value="@Model.Id" />
+                                <input type="hidden" name="PublisherId" value="@comment.UserId" />
+                                <button type="submit" class="btn btn-sm btn-danger" style="padding:0 0.5rem;">✕</button>
+                            </form>
+                        }
                     </div>
                 }
+
             }
             else
             {
@@ -133,4 +146,63 @@
             });
         });
     </script>
+
+    <script>
+        document.getElementById("commentForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const form = this;
+            const formData = new FormData(form);
+            const token = formData.get("__RequestVerificationToken");
+
+            fetch(form.action, {
+                method: "POST",
+                headers: {
+                    "RequestVerificationToken": token
+                },
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) throw new Error("Failed to post comment");
+                return response.text(); 
+            })
+            .then(data => {
+                form.reset();
+                location.reload();
+            })
+            .catch(error => {
+                console.error("Error posting comment:", error);
+            });
+        });
+    </script>
+
+    <script>
+        document.querySelectorAll(".delete-comment-form").forEach(form => {
+            form.addEventListener("submit", function (e) {
+                e.preventDefault();
+
+                const formData = new FormData(this);
+                const token = formData.get("__RequestVerificationToken");
+
+                fetch(this.action, {
+                    method: "POST",
+                    headers: {
+                        "RequestVerificationToken": token
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error("Failed to delete comment");
+                    return response.text();
+                })
+                .then(data => {
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error("Error deleting comment:", error);
+                });
+            });
+        });
+    </script>
+
 }
