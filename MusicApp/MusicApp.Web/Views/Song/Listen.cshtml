@@ -6,98 +6,63 @@
     var durationInMinutes = $"{Model.Duration / 60:D2}:{Model.Duration % 60:D2}";
 }
 
-<style>
-    body{
-        background-color:#111;
-    }
-</style>
+<link href="~/css/listenStyle.css" rel="stylesheet" />
 
-<div class="listen-container" style="
-    max-width:400px;
-    margin:2rem auto;
-    padding:1rem;
-    background-color:#1e1e1e;
-    color:white;
-    border-radius:12px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.4);
-    font-family:Arial, sans-serif;
-    text-align:center;
-">
-    <img src="@Model.ImageUrl" alt="Cover" style="
-        width:100%;
-        height:300px;
-        object-fit:cover;
-        border-radius:10px;
-    " />
+<div style="display:flex; gap:2rem; max-width:1100px; margin:2rem auto; color:white; font-family:Arial, sans-serif; background-color:#1e1e1e; padding:1rem; border-radius:12px; box-shadow:0 0 10px rgba(0,0,0,0.4);">
 
-    <h3 style="margin-top:1rem;margin-bottom:0.5rem;">@Model.Title</h3>
-    <p style="color:gray; font-size:0.9rem;">@Model.Artist • @Model.Publisher</p>
+    <div style="flex:1; ">
+        <img src="@Model.ImageUrl" alt="Cover" style="width:100%; max-height:400px; object-fit:cover; border-radius:10px;" />
 
-    <audio id="audioPlayer" src="@Model.AudioUrl" preload="metadata" hidden></audio>
+        <div class="song-info">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <h3 style="margin: 0;">@Model.Title</h3>
+                <button id="likeButton"
+                        data-song-id="@Model.Id"
+                        class="like-heart @(Model.IsLiked ? "liked" : "")">
+                    @(Model.IsLiked ? "♥️" : "🤍")
+                </button>
+            </div>
+            <p style="color:gray; margin-top:0.2rem;">
+                <strong>@Model.Artist</strong> • @Model.Publisher
+            </p>
+        </div>
 
-    <input type="range" id="progressBar" value="0" step="1" style="
-        width:100%;
-        margin-top:1rem;
-        appearance: none;
-        height:5px;
-        background: #444;
-        border-radius:5px;
-        outline: none;
-    " />
-
-    <div style="margin-top:0.25rem; font-size:0.85rem; color:#bbb;" id="timeDisplay">
-        0:00 / @durationInMinutes
+        <audio id="audioPlayer" src="@Model.AudioUrl" preload="metadata" hidden></audio>
+        <input type="range" id="progressBar" value="0" step="1" style="width:100%; appearance:none; height:5px; background:#444; border-radius:5px; outline:none;" />
+        <div id="timeDisplay" style="font-size:0.85rem; color:#bbb;">0:00 / @durationInMinutes</div>
+        <button onclick="togglePlay()" id="playBtn" class="btn btn-light w-100 mt-2">Pause</button>
     </div>
 
-    <div style="display:flex;justify-content:space-between;gap:0.5rem;margin-top:1rem;">
-        <button onclick="togglePlay()" id="playBtn" class="btn btn-light w-100">Pause</button>
+    <div style="flex:1;">
+        <h4 style="margin-bottom:1rem;">Comments:</h4>
 
-        @Html.AntiForgeryToken()
+        <hr />
 
-        <button id="likeButton"
-                data-song-id="@Model.Id"
-                class="btn w-100 @(Model.IsLiked ? "btn-danger" : "btn-outline-light")">
-            @(Model.IsLiked ? "Liked" : "Like")
-        </button>
+        <form asp-action="PostComment" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="SongId" value="@Model.Id" />
+            <textarea name="Text" class="form-control mb-2" placeholder="Add a comment..." maxlength="150" required></textarea>
+            <button type="submit" id="btn-post" class="btn btn-sm btn-success">Post</button>
+        </form>
 
-
-
-        <button class="btn btn-outline-light w-100">Comment</button>
-        <button class="btn btn-outline-light w-100">Add to Playlist</button>
-    </div>
-
-    <hr style="margin-top:2rem; border-color: #444;" />
-
-    <h4 style="margin-bottom:1rem;">Comments</h4>
-
-    <!-- Comment Form -->
-    <form asp-action="PostComment" method="post">
-        @Html.AntiForgeryToken()
-        <input type="hidden" name="SongId" value="@Model.Id" />
-        <textarea name="Text" class="form-control mb-2" placeholder="Add a comment..." maxlength="150" required></textarea>
-        <button type="submit" class="btn btn-sm btn-success">Post</button>
-    </form>
-
-    <!-- Comments List -->
-    <div class="comments-section" style="margin-top:1rem; text-align:left;">
-        @if (Model.Comments != null && Model.Comments.Any())
-        {
-            foreach (var comment in Model.Comments)
+        <div class="scrollable-comments mt-3">
+            @if (Model.Comments != null && Model.Comments.Any())
             {
-                <div style="padding:0.5rem; border-bottom:1px solid #333;">
-                    <strong>@comment.Username</strong>
-                    <small style="color:gray;"> - @comment.CreatedOn.ToShortTimeString() @comment.CreatedOn.ToShortDateString()</small>
-                    <p style="margin:0.2rem 0;">@comment.Text</p>
-                </div>
+                foreach (var comment in Model.Comments)
+                {
+                    <div style="padding:0.5rem; border-bottom:1px solid #333;">
+                        <strong>@comment.Username</strong>
+                        <small style="color:gray;"> - @comment.CreatedOn.ToShortTimeString() @comment.CreatedOn.ToShortDateString()</small>
+                        <p style="margin:0.2rem 0;">@comment.Text</p>
+                    </div>
+                }
             }
-        }
-        else
-        {
-            <p style="color:gray;">No comments yet. Be the first!</p>
-        }
+            else
+            {
+                <p style="color:gray;">No comments yet. Be the first!</p>
+            }
+        </div>
     </div>
-
-
 </div>
 
 @section Scripts {
@@ -157,18 +122,15 @@
                 body: JSON.stringify(songId)
             })
             .then(res => res.json())
-                    .then(data => {
-            if (data.liked) {
-                btn.classList.remove('btn-outline-light');
-                btn.classList.add('btn-danger');
-                btn.innerText = 'Liked';
-            } else {
-                btn.classList.remove('btn-danger');
-                btn.classList.add('btn-outline-light');
-                btn.innerText = 'Like';
-            }
+            .then(data => {
+                if (data.liked) {
+                    btn.classList.add('liked');
+                    btn.innerHTML = '♥️';
+                } else {
+                    btn.classList.remove('liked');
+                    btn.innerHTML = '🤍';
+                }
             });
         });
     </script>
-
 }
