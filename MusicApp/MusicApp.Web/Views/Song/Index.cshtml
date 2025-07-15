@@ -30,7 +30,20 @@
                     <div class="song-title">@song.Title</div>
 
                     <div class="buttons">
+
+                    @{
+                        var returnUrl = Url.Action("Listen", "Song", new { id = song.Id });
+                    }
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
                         <a class="listen-button" asp-controller="Song" asp-action="Listen" asp-route-id="@song.Id">Listen</a>
+                    }
+                    else
+                    {
+                        <a class="listen-button" href="~/Identity/Account/Login?returnUrl=@Uri.EscapeDataString(returnUrl)">Login to Listen</a>
+                    }
+
 
                         <button type="button" class="details-button"
                                 data-bs-toggle="modal"
