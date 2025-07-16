@@ -197,6 +197,42 @@ namespace MusicApp.Services.Core
 
             return song;
         }
-        
+
+        public async Task<bool> ToggleLikeAsync(string userId, Guid songId)
+        {
+            bool result = false;
+
+            Song? song = await dbContext.Songs.FindAsync(songId);
+
+            if (song != null)
+            {
+                Like? existingLike = await dbContext.Likes
+                    .FirstOrDefaultAsync(l => l.User.Id == userId && l.SongId == songId);
+
+                if (existingLike != null)
+                {
+                    dbContext.Likes.Remove(existingLike);
+                    song.Likes-=1;
+
+                    await dbContext.SaveChangesAsync();
+                }
+                else
+                {
+                    Like like = new Like()
+                    {
+                        Id = Guid.NewGuid(),
+                        UserId = userId,
+                        SongId = songId
+                    };
+
+                    dbContext.Likes.Add(like);
+                    song.Likes += 1;
+
+                    await dbContext.SaveChangesAsync();
+                    result = true;
+                }
+            }
+            return result;
+        }
     }
 }

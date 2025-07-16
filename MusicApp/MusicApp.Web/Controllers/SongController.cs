@@ -214,6 +214,7 @@ namespace MusicApp.Web.Controllers
                 }
                 string useId = GetUserId()!;
 
+                bool liked=await songService.ToggleLikeAsync(useId, id);
                 bool isInFavorites = await playlistService.IsSongFavoritesAsync(useId, id);
 
                 if (isInFavorites)
@@ -225,7 +226,7 @@ namespace MusicApp.Web.Controllers
                     await playlistService.AddSongToFavoritesAsync(useId, id);
                 }
 
-                return Json(new { liked = !isInFavorites });
+                return Json(new { liked = !isInFavorites});
             }
             catch (Exception e)
             {

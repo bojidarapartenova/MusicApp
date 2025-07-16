@@ -11,46 +11,41 @@
 <h1>@Model.Title</h1>
 <h2>Songs:</h2>
 
-<div class="d-flex gap-2 mb-3">
-    <button id="btn-edit" class="btn btn-primary" onclick="openModal()">Add more songs</button>
-
-    @if (!Model.IsDeafault)
-    {
+@if (!Model.IsDeafault)
+{
+    <div class="d-flex gap-2 mb-3">
+        <button id="btn-edit" class="btn btn-primary" onclick="openModal()">Add more songs</button>
         <a asp-action="Edit" asp-route-id="@Model.Id" id="btn-edit" class="btn btn-secondary">Edit Playlist</a>
-    }
-</div>
-
-
-
-<div id="addSongsModal" class="modal" style="display:none;">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <h3>Select songs to add</h3>
-
-        <form asp-action="AddSongsToPlaylist" method="post">
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="playlistId" value="@Model.Id" />
-
-            @foreach (var song in Model.AvailableSongs)
-            {
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="selectedSongIds" value="@song.Id" id="song-@song.Id" />
-                    <label class="form-check-label" for="song-@song.Id">
-                        <img src="@song.ImageUrl" style="height:40px;" />
-                        @song.Title - @song.Artist
-                    </label>
-                </div>
-            }
-
-            <button id="btn-add" type="submit" class="btn btn-success mt-2">Add Selected Songs</button>
-        </form>
-
-
     </div>
-</div>
+}
 
+@if (!Model.IsDeafault)
+{
+    <div id="addSongsModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3>Select songs to add</h3>
 
+            <form asp-action="AddSongsToPlaylist" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="playlistId" value="@Model.Id" />
 
+                @foreach (var song in Model.AvailableSongs)
+                {
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="selectedSongIds" value="@song.Id" id="song-@song.Id" />
+                        <label class="form-check-label" for="song-@song.Id">
+                            <img src="@song.ImageUrl" style="height:40px;" />
+                            @song.Title - @song.Artist
+                        </label>
+                    </div>
+                }
+
+                <button id="btn-add" type="submit" class="btn btn-success mt-2">Add Selected Songs</button>
+            </form>
+        </div>
+    </div>
+}
 
 @if (Model.Songs.Any())
 {
@@ -65,9 +60,17 @@
                     <td>@song.Title</td>
                     <td>
                         <a class="btn-action" href="@Url.Action("Listen", "Song", new { id = song.Id })">Listen</a>
-                        <form asp-action="RemoveSong" asp-route-playlistId="@Model.Id" asp-route-songId="@song.Id" method="post" style="display:inline;">
-                            <button type="submit" class="btn-action delete">Remove from playlist</button>
-                        </form>
+
+                        @if (!Model.IsDeafault)
+                        {
+                            <form asp-action="RemoveSong"
+                                  asp-route-playlistId="@Model.Id"
+                                  asp-route-songId="@song.Id"
+                                  method="post"
+                                  style="display:inline;">
+                                <button type="submit" class="btn-action delete">Remove from playlist</button>
+                            </form>
+                        }
                     </td>
                 </tr>
             }
