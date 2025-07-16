@@ -40,7 +40,8 @@ namespace MusicApp.Services.Core
                     Publisher=s.Publisher.UserName!,
                     Genre=s.Genre.Name,
                     ReleaseDate=s.ReleaseDate,
-                    PublisherId=s.PublisherId
+                    PublisherId=s.PublisherId,
+                    LikesCount=s.Likes
                 })
                 .ToArrayAsync();
 
@@ -191,7 +192,8 @@ namespace MusicApp.Services.Core
                     Publisher=s.Publisher.UserName!,
                     ReleaseDate = s.ReleaseDate,
                     Genre = s.Genre.Name,
-                    AudioUrl=s.AudioUrl
+                    AudioUrl=s.AudioUrl,
+                    LikesCount=s.Likes
                 })
                 .FirstOrDefaultAsync(s => s.Id.ToString() == songId);
 
@@ -233,6 +235,15 @@ namespace MusicApp.Services.Core
                 }
             }
             return result;
+        }
+
+        public async Task<int> GetSongLikeCountAsync(Guid songId)
+        {
+            int likes=await dbContext
+                .Likes
+                .CountAsync(l=>l.SongId == songId);
+
+            return likes;
         }
     }
 }

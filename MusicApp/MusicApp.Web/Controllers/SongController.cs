@@ -226,7 +226,9 @@ namespace MusicApp.Web.Controllers
                     await playlistService.AddSongToFavoritesAsync(useId, id);
                 }
 
-                return Json(new { liked = !isInFavorites});
+                int likeCount=await songService.GetSongLikeCountAsync(id);
+
+                return Json(new { liked, likeCount});
             }
             catch (Exception e)
             {

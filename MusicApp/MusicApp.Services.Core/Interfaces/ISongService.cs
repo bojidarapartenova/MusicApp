@@ -18,5 +18,6 @@ namespace MusicApp.Services.Core.Interfaces
         Task<bool> SoftDeleteSongAsync(string userId, DeleteSongViewModel viewModel);
         Task<SongViewModel?> GetSongByIdAsync(string songId);
         Task<bool> ToggleLikeAsync(string userId, Guid songId);
+        Task<int> GetSongLikeCountAsync(Guid songId);
     }
 }

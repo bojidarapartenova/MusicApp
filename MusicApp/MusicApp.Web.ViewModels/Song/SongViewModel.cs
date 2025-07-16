@@ -20,6 +20,7 @@ namespace MusicApp.Web.ViewModels.Song
         public string PublisherId { get; set; } = null!; 
         public string AudioUrl { get; set; } = null!;
         public bool IsLiked { get; set; }
+        public int LikesCount {  get; set; }
         public IEnumerable<CommentViewModel> Comments { get; set; }=new List<CommentViewModel>();
     }
 }

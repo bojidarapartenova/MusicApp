@@ -6,6 +6,7 @@
     const likeButton = document.getElementById("likeButton");
     const commentForm = document.getElementById("commentForm");
     const deleteForms = document.querySelectorAll(".delete-comment-form");
+    const likeCountSpan = document.getElementById("likeCount");
 
     // Format helper
     function formatTime(seconds) {
@@ -15,7 +16,12 @@
         return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
     }
 
-    // Update time display
+    function formatLikeCount(count) {
+        if (count >= 1_000_000) return (count / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+        if (count >= 1_000) return (count / 1_000).toFixed(1).replace(/\.0$/, "") + "k";
+        return count.toString();
+    }
+
     function updateTimeDisplay() {
         const current = formatTime(audio.currentTime);
         const total = formatTime(audio.duration);
@@ -23,23 +29,18 @@
         progressBar.value = Math.floor(audio.currentTime);
     }
 
-    // Load metadata safely
     audio.addEventListener("loadedmetadata", function () {
         progressBar.max = Math.floor(audio.duration);
         updateTimeDisplay();
     });
 
-    // Only update progress bar, no autoplay
     audio.addEventListener("timeupdate", updateTimeDisplay);
 
-    // Allow scrubbing (optional)
     progressBar.addEventListener("input", function () {
         audio.currentTime = progressBar.value;
     });
 
-    // Comment out play/pause for now
-    /*
-    function togglePlay() {
+    playBtn.addEventListener("click", function () {
         if (audio.paused) {
             audio.play();
             playBtn.innerText = "Pause";
@@ -47,12 +48,9 @@
             audio.pause();
             playBtn.innerText = "Play";
         }
-    }
+    });
 
-    playBtn.addEventListener("click", togglePlay);
-    */
-
-    // Like Button Logic
+    // 💖 Like Button Handler
     likeButton?.addEventListener("click", function () {
         const songId = likeButton.getAttribute("data-song-id");
         const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
@@ -74,11 +72,17 @@
                     likeButton.classList.remove("liked");
                     likeButton.innerHTML = "🤍";
                 }
+
+                if (likeCountSpan && data.likeCount !== undefined) {
+                    likeCountSpan.textContent = formatLikeCount(data.likeCount);
+                    likeCountSpan.classList.add("pulse");
+                    setTimeout(() => likeCountSpan.classList.remove("pulse"), 300);
+                }
             })
             .catch(console.error);
     });
 
-    // Comment Submission (no reload)
+    // 📝 Comment Submission
     commentForm?.addEventListener("submit", function (e) {
         e.preventDefault();
 
@@ -105,7 +109,7 @@
             });
     });
 
-    // Delete Comments
+    // ❌ Delete Comment
     deleteForms.forEach(form => {
         form.addEventListener("submit", function (e) {
             e.preventDefault();

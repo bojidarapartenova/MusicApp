@@ -16,11 +16,17 @@
         <div class="song-info">
             <div style="display: flex; align-items: center; justify-content: space-between;">
                 <h3 style="margin: 0;">@Model.Title</h3>
-                <button id="likeButton"
-                        data-song-id="@Model.Id"
-                        class="like-heart @(Model.IsLiked ? "liked" : "")">
-                    @(Model.IsLiked ? "♥️" : "🤍")
-                </button>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <button id="likeButton"
+                            data-song-id="@Model.Id"
+                            class="like-heart @(Model.IsLiked ? "liked" : "")"
+                            style="font-size: 1.5rem; background: none; border: none; color: white;">
+                        @(Model.IsLiked ? "♥️" : "🤍")
+                    </button>
+                    <span id="likeCount" style="color: #bbb;" data-count="@Model.LikesCount">@FormatLikeCount(Model.LikesCount)</span>
+
+                </div>
+
             </div>
             <p style="color:gray; margin-top:0.2rem;">
                 <strong>@Model.Artist</strong> • @Model.Publisher
@@ -80,4 +86,15 @@
 
 @section Scripts {
     <script src="~/js/listen.js"></script>
+}
+
+@functions {
+    public string FormatLikeCount(int count)
+    {
+        if (count >= 1_000_000)
+            return (count / 1_000_000D).ToString("0.#") + "M";
+        if (count >= 1_000)
+            return (count / 1_000D).ToString("0.#") + "k";
+        return count.ToString();
+    }
 }
