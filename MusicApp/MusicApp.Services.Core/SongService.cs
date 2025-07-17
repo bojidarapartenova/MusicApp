@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Internal;
 using MusicApp.Web.ViewModels.Comment;
 using System.ComponentModel;
+using Microsoft.AspNetCore.Hosting;
 
 namespace MusicApp.Services.Core
 {
@@ -19,10 +20,12 @@ namespace MusicApp.Services.Core
     {
         private readonly MusicAppDbContext dbContext;
         private readonly UserManager<ApplicationUser> userManager;
-        public SongService(MusicAppDbContext dbContext, UserManager<ApplicationUser> userManager)
+        private readonly IWebHostEnvironment webHostEnvironment;
+        public SongService(MusicAppDbContext dbContext, UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment)
         {
             this.dbContext = dbContext;
             this.userManager = userManager;
+            this.webHostEnvironment = webHostEnvironment;
         }
 
         public async Task<IEnumerable<SongViewModel>> GetAllSongsAsync()
@@ -52,6 +55,17 @@ namespace MusicApp.Services.Core
         {
             bool result = false;
 
+            var uploadsFolder = Path.Combine(webHostEnvironment.WebRootPath, "audio");
+            Directory.CreateDirectory(uploadsFolder);
+
+            var uniqueFileName = Guid.NewGuid() + Path.GetExtension(inputModel.AudioUrl.FileName);
+            var filePath=Path.Combine(uploadsFolder, uniqueFileName);
+
+            using(var stream =new FileStream(filePath, FileMode.Create))
+            {
+                await inputModel.AudioUrl.CopyToAsync(stream);  
+            }
+
             ApplicationUser? user=await userManager.FindByIdAsync(userId);
             Genre? genre = await dbContext.Genres.FindAsync(inputModel.GenreId);
 
@@ -67,7 +81,7 @@ namespace MusicApp.Services.Core
                     ReleaseDate = DateTime.UtcNow,
                     Likes = 0,
                     ImageUrl = inputModel.ImageUrl?? $"/images/no-image.jpg",
-                    AudioUrl = inputModel.AudioUrl
+                    AudioUrl = "/audio/"+uniqueFileName
                 };
 
                 await dbContext.Songs.AddAsync(song);
@@ -98,7 +112,6 @@ namespace MusicApp.Services.Core
                         GenreId = song.GenreId,
                         Artist = song.Artist,
                         Duration = song.Duration,
-                        Likes= song.Likes,
                         ImageUrl = song.ImageUrl,
                         AudioUrl = song.AudioUrl,
                         PublisherId=userId
@@ -112,25 +125,46 @@ namespace MusicApp.Services.Core
         {
             bool result = false;
 
-            Genre? genre=await dbContext.Genres.FindAsync(inputModel.GenreId);
+            Genre? genre = await dbContext.Genres.FindAsync(inputModel.GenreId);
             Song? editedSong = await dbContext.Songs.FindAsync(inputModel.Id);
 
-            if(genre!=null && editedSong!=null)
+            if (genre != null && editedSong != null && editedSong.PublisherId.ToLower() == inputModel.PublisherId.ToLower())
             {
-                editedSong.Title=inputModel.Title;
-                editedSong.GenreId=inputModel.GenreId;
-                editedSong.Artist=inputModel.Artist;
-                editedSong.Duration=inputModel.Duration;
-                editedSong.Likes=inputModel.Likes;
-                editedSong.ImageUrl=inputModel.ImageUrl;
-                editedSong.AudioUrl=inputModel.AudioUrl;
-                editedSong.PublisherId=inputModel.PublisherId;
+                editedSong.Title = inputModel.Title;
+                editedSong.GenreId = inputModel.GenreId;
+                editedSong.Artist = inputModel.Artist;
+                editedSong.Duration = inputModel.Duration;
+                editedSong.ImageUrl = inputModel.ImageUrl;
+
+                if (inputModel.NewAudioFile != null)
+                {
+                    string uploadsFolder = Path.Combine(webHostEnvironment.WebRootPath, "audio");
+                    Directory.CreateDirectory(uploadsFolder);
+
+                    string newFileName = Guid.NewGuid() + Path.GetExtension(inputModel.NewAudioFile.FileName);
+                    string newFilePath = Path.Combine(uploadsFolder, newFileName);
+
+                    using (var fileStream = new FileStream(newFilePath, FileMode.Create))
+                    {
+                        await inputModel.NewAudioFile.CopyToAsync(fileStream);
+                    }
+
+                    string oldAudioPath = Path.Combine(webHostEnvironment.WebRootPath, editedSong.AudioUrl.TrimStart('/'));
+                    if (System.IO.File.Exists(oldAudioPath))
+                    {
+                        System.IO.File.Delete(oldAudioPath);
+                    }
+
+                    editedSong.AudioUrl = "/audio/" + newFileName;
+                }
 
                 await dbContext.SaveChangesAsync();
-                result= true;
+                result = true;
             }
+
             return result;
         }
+
 
         public async Task<DeleteSongViewModel?> GetSongToDeleteAsync(string userId, string? songId)
         {

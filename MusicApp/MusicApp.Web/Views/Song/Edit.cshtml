@@ -2,7 +2,7 @@
 @model EditSongInputModel
 
 @{
-	ViewData["Title"] = "Edit Song";
+    ViewData["Title"] = "Edit Song";
 }
 
 <link href="~/css/style.css" rel="stylesheet" />
@@ -10,13 +10,15 @@
 <div class="row">
     <div class="col-md-4">
         <section>
-            <form asp-action="Edit" method="post">
+            <form asp-action="Edit" method="post" enctype="multipart/form-data">
                 <h1>@ViewData["Title"]</h1>
                 <hr />
 
+                @* Hidden fields *@
                 <input type="hidden" asp-for="Id" />
                 <input type="hidden" asp-for="PublisherId" />
-                <input type="hidden" asp-for="ReleaseDate"/>
+                <input type="hidden" asp-for="ReleaseDate" />
+                <input type="hidden" asp-for="AudioUrl" />
 
                 <div class="form-group">
                     <label asp-for="Title">Song Title</label>
@@ -32,10 +34,10 @@
 
                 <div class="form-group">
                     <label asp-for="GenreId">Select Genre</label>
-                    <select asp-for="GenreId" class="form-control" aria-required="true" asp-items="@(new SelectList(Model.Genres, "GenreId", "Name"))">
+                    <select asp-for="GenreId" class="form-control" asp-items="@(new SelectList(Model.Genres, "GenreId", "Name"))">
                         <option value="">...</option>
                     </select>
-                    <span asp-validation-for="@Model.GenreId" class="text-danger"></span>
+                    <span asp-validation-for="GenreId" class="text-danger"></span>
                 </div>
 
                 <div class="form-group">
@@ -49,10 +51,16 @@
                     <input asp-for="ImageUrl" class="form-control" />
                 </div>
 
+                @* Audio Section *@
                 <div class="form-group">
-                    <label asp-for="AudioUrl"></label>
-                    <input asp-for="AudioUrl" class="form-control" />
-                    <span asp-validation-for="AudioUrl" class="text-danger"></span>
+                    <label>Current Audio</label>
+                    <audio controls style="width: 100%;">
+                        <source src="@Model.AudioUrl" type="audio/mpeg" />
+                        Your browser does not support the audio element.
+                    </audio>
+                    <p class="mt-2"><strong>Replace Audio (optional):</strong></p>
+                    <input asp-for="NewAudioFile" type="file" class="form-control" accept="audio/*" />
+                    <span asp-validation-for="NewAudioFile" class="text-danger"></span>
                 </div>
 
                 <button id="btn-add" type="submit" class="w-100 btn btn-lg btn-primary">Save Changes</button>

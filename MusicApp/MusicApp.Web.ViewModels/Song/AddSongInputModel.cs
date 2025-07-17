@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace MusicApp.Web.ViewModels.Song
 {
@@ -25,6 +26,6 @@ namespace MusicApp.Web.ViewModels.Song
         public int Duration { get; set; }
         public string? ImageUrl { get; set; }
         [Required]
-        public string AudioUrl { get; set; } = null!;
+        public IFormFile AudioUrl { get; set; } = null!;
     }
 }
