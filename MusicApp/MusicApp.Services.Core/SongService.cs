@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore.Internal;
 using MusicApp.Web.ViewModels.Comment;
 using System.ComponentModel;
 using Microsoft.AspNetCore.Hosting;
+using System.Diagnostics;
+using TagLib;
 
 namespace MusicApp.Services.Core
 {
@@ -63,8 +65,11 @@ namespace MusicApp.Services.Core
 
             using(var stream =new FileStream(filePath, FileMode.Create))
             {
-                await inputModel.AudioUrl.CopyToAsync(stream);  
+                await inputModel.AudioUrl.CopyToAsync(stream);
             }
+
+            var tfile = TagLib.File.Create(filePath);
+            var durationInSeconds = (int)tfile.Properties.Duration.TotalSeconds;
 
             ApplicationUser? user=await userManager.FindByIdAsync(userId);
             Genre? genre = await dbContext.Genres.FindAsync(inputModel.GenreId);
@@ -77,7 +82,7 @@ namespace MusicApp.Services.Core
                     PublisherId = userId,
                     GenreId = inputModel.GenreId,
                     Artist = inputModel.Artist,
-                    Duration = inputModel.Duration,
+                    Duration = durationInSeconds,
                     ReleaseDate = DateTime.UtcNow,
                     Likes = 0,
                     ImageUrl = inputModel.ImageUrl?? $"/images/no-image.jpg",
@@ -111,7 +116,6 @@ namespace MusicApp.Services.Core
                         Title = song.Title,
                         GenreId = song.GenreId,
                         Artist = song.Artist,
-                        Duration = song.Duration,
                         ImageUrl = song.ImageUrl,
                         AudioUrl = song.AudioUrl,
                         PublisherId=userId
@@ -133,7 +137,6 @@ namespace MusicApp.Services.Core
                 editedSong.Title = inputModel.Title;
                 editedSong.GenreId = inputModel.GenreId;
                 editedSong.Artist = inputModel.Artist;
-                editedSong.Duration = inputModel.Duration;
                 editedSong.ImageUrl = inputModel.ImageUrl;
 
                 if (inputModel.NewAudioFile != null)
@@ -149,6 +152,9 @@ namespace MusicApp.Services.Core
                         await inputModel.NewAudioFile.CopyToAsync(fileStream);
                     }
 
+                    var tfile = TagLib.File.Create(newFilePath);
+                    int durationInSeconds = (int)tfile.Properties.Duration.TotalSeconds;
+
                     string oldAudioPath = Path.Combine(webHostEnvironment.WebRootPath, editedSong.AudioUrl.TrimStart('/'));
                     if (System.IO.File.Exists(oldAudioPath))
                     {
@@ -156,6 +162,7 @@ namespace MusicApp.Services.Core
                     }
 
                     editedSong.AudioUrl = "/audio/" + newFileName;
+                    editedSong.Duration = durationInSeconds;
                 }
 
                 await dbContext.SaveChangesAsync();

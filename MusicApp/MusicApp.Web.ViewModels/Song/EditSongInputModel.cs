@@ -28,7 +28,7 @@ namespace MusicApp.Web.ViewModels.Song
         [MaxLength(100)]
         public string Artist { get; set; } = null!;
 
-        public int Duration { get; set; }
+       // public int Duration { get; set; }
         public DateTime ReleaseDate { get; set; }
         public string? ImageUrl { get; set; }
         [Required]
