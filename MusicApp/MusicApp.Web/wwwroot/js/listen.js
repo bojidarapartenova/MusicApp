@@ -8,7 +8,6 @@
     const deleteForms = document.querySelectorAll(".delete-comment-form");
     const likeCountSpan = document.getElementById("likeCount");
 
-    // Format helper
     function formatTime(seconds) {
         if (isNaN(seconds)) return "0:00";
         const minutes = Math.floor(seconds / 60);
@@ -22,22 +21,30 @@
         return count.toString();
     }
 
-    function updateTimeDisplay() {
-        const current = formatTime(audio.currentTime);
-        const total = formatTime(audio.duration);
-        timeDisplay.innerText = `${current} / ${total}`;
-        progressBar.value = Math.floor(audio.currentTime);
+    function updateProgressBar() {
+        const current = audio.currentTime;
+        const duration = audio.duration || 0;
+
+        // Update time display
+        const currentFormatted = formatTime(current);
+        const durationFormatted = formatTime(duration);
+        timeDisplay.innerText = `${currentFormatted} / ${durationFormatted}`;
+
+        // Update progress bar max and value
+        progressBar.max = Math.floor(duration);
+        progressBar.value = Math.floor(current);
+
+        // Update the color fill of progress bar
+        const percent = (current / duration) * 100 || 0;
+        progressBar.style.background = `linear-gradient(to right, #4a90e2 0%, #4a90e2 ${percent}%, #444 ${percent}%, #444 100%)`;
     }
 
-    audio.addEventListener("loadedmetadata", function () {
-        progressBar.max = Math.floor(audio.duration);
-        updateTimeDisplay();
-    });
-
-    audio.addEventListener("timeupdate", updateTimeDisplay);
+    audio.addEventListener("loadedmetadata", updateProgressBar);
+    audio.addEventListener("timeupdate", updateProgressBar);
 
     progressBar.addEventListener("input", function () {
         audio.currentTime = progressBar.value;
+        updateProgressBar();
     });
 
     playBtn.addEventListener("click", function () {
@@ -50,7 +57,6 @@
         }
     });
 
-    // 💖 Like Button Handler
     likeButton?.addEventListener("click", function () {
         const songId = likeButton.getAttribute("data-song-id");
         const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
@@ -82,7 +88,6 @@
             .catch(console.error);
     });
 
-    // 📝 Comment Submission
     commentForm?.addEventListener("submit", function (e) {
         e.preventDefault();
 
@@ -102,14 +107,13 @@
             })
             .then(() => {
                 commentForm.reset();
-                location.reload(); // Optional: replace with dynamic comment rendering
+                location.reload();
             })
             .catch(error => {
                 console.error("Error posting comment:", error);
             });
     });
 
-    // ❌ Delete Comment
     deleteForms.forEach(form => {
         form.addEventListener("submit", function (e) {
             e.preventDefault();
