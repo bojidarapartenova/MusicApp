@@ -152,53 +152,56 @@ namespace MusicApp.Services.Core
             return songs;
         }
 
-        public async Task<PlaylistDetailsViewModel> GetPlaylistDetailsAsync(Guid playlistId)
+        public async Task<PlaylistDetailsViewModel?> GetPlaylistDetailsAsync(Guid playlistId)
         {
+            PlaylistDetailsViewModel? viewModel = null;
+
             var playlist = await dbContext
                 .Playlists
                 .Include(p => p.PlaylistsSongs)
                     .ThenInclude(ps => ps.Song)
                 .FirstOrDefaultAsync(p => p.Id == playlistId && !p.IsDeleted);
 
-            if (playlist == null)
+            if (playlist != null)
             {
-                return null!;
+                var songsInPlaylist = playlist.PlaylistsSongs
+                    .Select(ps => ps.Song)
+                    .ToList();
+
+                var allSongs = await dbContext.Songs
+                    .Where(s => !s.IsDeleted)
+                    .ToListAsync();
+
+                var availableSongs = allSongs
+                    .Where(s => songsInPlaylist.All(pSong => pSong.Id != s.Id))
+                    .ToList();
+
+
+                viewModel= new PlaylistDetailsViewModel
+                {
+                    Id = playlist.Id,
+                    Title = playlist.Title,
+                    IsDeafault = playlist.IsDefault,
+
+                    Songs = songsInPlaylist.Select(s => new SongViewModel
+                    {
+                        Id = s.Id,
+                        Title = s.Title,
+                        Artist = s.Artist,
+                        ImageUrl = s.ImageUrl ?? $"/images/no-image.jpg",
+                        AudioUrl = s.AudioUrl
+                    }).ToList(),
+
+                    AvailableSongs = availableSongs.Select(s => new SongViewModel
+                    {
+                        Id = s.Id,
+                        Title = s.Title,
+                        Artist = s.Artist,
+                        ImageUrl = s.ImageUrl ?? $"/images/no-image.jpg"
+                    }).ToList()
+                };
             }
-
-            var songsInPlaylist = playlist.PlaylistsSongs
-                .Select(ps => ps.Song)
-                .ToList();
-
-            var allSongs = await dbContext.Songs
-                .Where(s => !s.IsDeleted)
-                .ToListAsync();
-
-            var availableSongs = allSongs
-                .Where(s => songsInPlaylist.All(pSong => pSong.Id != s.Id))
-                .ToList();
-
-            return new PlaylistDetailsViewModel
-            {
-                Id = playlist.Id,
-                Title = playlist.Title,
-                IsDeafault=playlist.IsDefault,
-
-                Songs = songsInPlaylist.Select(s => new SongViewModel
-                {
-                    Id = s.Id,
-                    Title = s.Title,
-                    Artist = s.Artist,
-                    ImageUrl = s.ImageUrl ?? $"/images/no-image.jpg"
-                }).ToList(),
-
-                AvailableSongs = availableSongs.Select(s => new SongViewModel
-                {
-                    Id = s.Id,
-                    Title = s.Title,
-                    Artist = s.Artist,
-                    ImageUrl = s.ImageUrl ?? $"/images/no-image.jpg"
-                }).ToList()
-            };
+            return viewModel;
         }
 
 
