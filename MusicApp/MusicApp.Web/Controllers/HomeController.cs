@@ -2,21 +2,40 @@ using System.Diagnostics;
 using CinemaApp.Web.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using MusicApp.Data.Data;
 using MusicApp.Web.Models;
+using MusicApp.Web.ViewModels.Song;
 
 namespace MusicApp.Web.Controllers
 {
     public class HomeController : BaseController
     {
-        public HomeController()
+        private readonly MusicAppDbContext context;
+        public HomeController(MusicAppDbContext context)
         {
-           
+           this.context = context;
         }
 
         [AllowAnonymous]
         public IActionResult Index()
         {
-            return View();
+            var songs = context.Songs
+             .Where(s => !s.IsDeleted)
+             .OrderByDescending(s => s.Likes)
+             .ThenBy(s=>s.Title)
+             .Take(10)
+             .Select(s => new SongViewModel
+             {
+                 Id = s.Id,
+                 Title = s.Title,
+                 Artist = s.Artist,
+                 ImageUrl = s.ImageUrl ?? "/images/default-song.png",
+                 AudioUrl = s.AudioUrl
+             })
+             .ToList();
+
+            return View(songs);
         }
 
         public IActionResult Privacy()

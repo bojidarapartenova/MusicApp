@@ -35,6 +35,7 @@ namespace MusicApp.Services.Core
             IEnumerable<SongViewModel> songs = await dbContext
                 .Songs
                 .AsNoTracking()
+                .OrderByDescending(s=>s.ReleaseDate)
                 .Select(s => new SongViewModel()
                 {
                     Id = s.Id,
