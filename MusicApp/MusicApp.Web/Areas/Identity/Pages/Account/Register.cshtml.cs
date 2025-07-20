@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using MusicApp.Data.Models;
+using MusicApp.Services.Core.Interfaces;
 
 namespace MusicApp.Web.Areas.Identity.Pages.Account
 {
@@ -23,18 +24,21 @@ namespace MusicApp.Web.Areas.Identity.Pages.Account
         private readonly IUserStore<ApplicationUser> _userStore;
         private readonly IUserEmailStore<ApplicationUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
+        private readonly IPlaylistsService _playlistsService;
 
         public RegisterModel(
             UserManager<ApplicationUser> userManager,
             IUserStore<ApplicationUser> userStore,
             SignInManager<ApplicationUser> signInManager,
-            ILogger<RegisterModel> logger)
+            ILogger<RegisterModel> logger,
+            IPlaylistsService playlistsService)
         {
             _userManager = userManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
             _signInManager = signInManager;
             _logger = logger;
+            _playlistsService = playlistsService;
         }
 
         [BindProperty]
@@ -84,6 +88,9 @@ namespace MusicApp.Web.Areas.Identity.Pages.Account
 
                 if (result.Succeeded)
                 {
+                    var userEntity = await _userManager.FindByEmailAsync(Input.Email);
+                    await _playlistsService.EnsureFavoritesPlaylistExistsAsync(userEntity.Id);
+
                     _logger.LogInformation("User created a new account with password.");
 
                     await _signInManager.SignInAsync(user, isPersistent: false);

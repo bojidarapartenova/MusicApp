@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using MusicApp.Data.Models;
+using MusicApp.Services.Core.Interfaces;
 
 namespace MusicApp.Web.Areas.Identity.Pages.Account
 {
@@ -23,12 +24,14 @@ namespace MusicApp.Web.Areas.Identity.Pages.Account
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IPlaylistsService _playlistsService;
 
-        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger, UserManager<ApplicationUser> userManager)
+        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger, UserManager<ApplicationUser> userManager, IPlaylistsService playlistsService)
         {
             _signInManager = signInManager;
             _logger = logger;
             _userManager = userManager;
+            _playlistsService = playlistsService;
         }
 
         /// <summary>
@@ -125,6 +128,9 @@ namespace MusicApp.Web.Areas.Identity.Pages.Account
 
                     if (result.Succeeded)
                     {
+                        var userEntity = await _userManager.FindByEmailAsync(Input.Email);
+                        await _playlistsService.EnsureFavoritesPlaylistExistsAsync(userEntity.Id);
+
                         _logger.LogInformation("User logged in.");
                         return LocalRedirect(returnUrl);
                     }

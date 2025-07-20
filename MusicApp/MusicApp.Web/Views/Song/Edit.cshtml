@@ -14,7 +14,6 @@
                 <h1>@ViewData["Title"]</h1>
                 <hr />
 
-                @* Hidden fields *@
                 <input type="hidden" asp-for="Id" />
                 <input type="hidden" asp-for="PublisherId" />
                 <input type="hidden" asp-for="ReleaseDate" />
@@ -39,26 +38,19 @@
                     </select>
                     <span asp-validation-for="GenreId" class="text-danger"></span>
                 </div>
-@* 
-                <div class="form-group">
-                    <label asp-for="Duration"></label>
-                    <input asp-for="Duration" class="form-control" />
-                    <span asp-validation-for="Duration" class="text-danger"></span>
-                </div> *@
 
                 <div class="form-group">
                     <label asp-for="ImageUrl"></label>
                     <input asp-for="ImageUrl" class="form-control" />
                 </div>
 
-                @* Audio Section *@
                 <div class="form-group">
                     <label>Current Audio</label>
                     <audio controls style="width: 100%;">
                         <source src="@Model.AudioUrl" type="audio/mpeg" />
                         Your browser does not support the audio element.
                     </audio>
-                    <p class="mt-2"><strong>Replace Audio (optional):</strong></p>
+                    <p class="mt-2"><strong>Replace Audio:</strong></p>
                     <input asp-for="NewAudioFile" type="file" class="form-control" accept="audio/*" />
                     <span asp-validation-for="NewAudioFile" class="text-danger"></span>
                 </div>

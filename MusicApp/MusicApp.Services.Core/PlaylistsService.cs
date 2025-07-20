@@ -225,6 +225,8 @@ namespace MusicApp.Services.Core
 
         public async Task AddSongToFavoritesAsync(string userId, Guid songId)
         {
+            await EnsureFavoritesPlaylistExistsAsync(userId); 
+
             var favorites = await dbContext
                 .Playlists
                 .Include(p => p.PlaylistsSongs)

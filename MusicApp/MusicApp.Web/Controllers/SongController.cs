@@ -176,7 +176,9 @@ namespace MusicApp.Web.Controllers
         {
             try
             {
-                var userId = GetUserId();
+                var userId = GetUserId()!;
+                await playlistService.EnsureFavoritesPlaylistExistsAsync(userId);
+
                 var song = await songService.GetSongByIdAsync(id);
                 if (song == null)
                 {
