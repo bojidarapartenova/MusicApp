@@ -34,12 +34,6 @@ namespace MusicApp.Web
                 .AddSignInManager<SignInManager<ApplicationUser>>()
                 .AddUserManager<UserManager<ApplicationUser>>();
 
-            //builder.Services.AddScoped<ISongService, SongService>();
-            //builder.Services.AddScoped<IGenreService, GenreService>();
-            //builder.Services.AddScoped<IMyReleasesService, MyReleasesService>();
-            //builder.Services.AddScoped<IPlaylistsService, PlaylistsService>();
-            //builder.Services.AddScoped<ICommentService, CommentService>();
-
             builder.Services.AddUserDefinedServices(typeof(ISongService).Assembly);
 
             builder.Services.AddControllersWithViews();
@@ -59,6 +53,8 @@ namespace MusicApp.Web
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            app.UseStatusCodePagesWithRedirects("/Home/Error?statusCode={0}");
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
