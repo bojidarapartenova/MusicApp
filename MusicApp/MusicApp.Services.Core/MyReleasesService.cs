@@ -22,6 +22,7 @@ namespace MusicApp.Services.Core
             IEnumerable<SongViewModel> myReleases = await dbContext
                 .Songs
                 .Where(s => s.PublisherId.ToLower() == userId.ToLower())
+                .OrderByDescending(s=>s.ReleaseDate)
                 .Select(s => new SongViewModel
                 {
                     Id = s.Id,
