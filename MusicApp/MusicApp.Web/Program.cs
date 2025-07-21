@@ -34,11 +34,13 @@ namespace MusicApp.Web
                 .AddSignInManager<SignInManager<ApplicationUser>>()
                 .AddUserManager<UserManager<ApplicationUser>>();
 
-            builder.Services.AddScoped<ISongService, SongService>();
-            builder.Services.AddScoped<IGenreService, GenreService>();
-            builder.Services.AddScoped<IMyReleasesService, MyReleasesService>();
-            builder.Services.AddScoped<IPlaylistsService, PlaylistsService>();
-            builder.Services.AddScoped<ICommentService, CommentService>();
+            //builder.Services.AddScoped<ISongService, SongService>();
+            //builder.Services.AddScoped<IGenreService, GenreService>();
+            //builder.Services.AddScoped<IMyReleasesService, MyReleasesService>();
+            //builder.Services.AddScoped<IPlaylistsService, PlaylistsService>();
+            //builder.Services.AddScoped<ICommentService, CommentService>();
+
+            builder.Services.AddUserDefinedServices(typeof(ISongService).Assembly);
 
             builder.Services.AddControllersWithViews();
 
