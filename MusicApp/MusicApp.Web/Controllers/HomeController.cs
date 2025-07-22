@@ -53,6 +53,8 @@ namespace MusicApp.Web.Controllers
                     return this.View("UnauthorizedError");
                 case 404:
                     return this.View("NotFoundError");
+                case 500:
+                    return this.View("BadRequestError");
                 default:
                     return this.View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
             }
