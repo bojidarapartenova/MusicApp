@@ -11,10 +11,12 @@ namespace MusicApp.Services.Core
     {
         private readonly MusicAppDbContext dbContext;
         private readonly UserManager<ApplicationUser> userManager;
-        public CommentService(MusicAppDbContext dbContext, UserManager<ApplicationUser> userManager)
+        private readonly INotificationsService notificationService;
+        public CommentService(MusicAppDbContext dbContext, UserManager<ApplicationUser> userManager, INotificationsService notificationService)
         {
             this.dbContext = dbContext;
             this.userManager = userManager;
+            this.notificationService = notificationService;
         }
 
         public async Task AddCommentAsync(PostCommentInputModel inputModel, string userId)
@@ -29,6 +31,13 @@ namespace MusicApp.Services.Core
             };
             await dbContext.Comments.AddAsync(comment);
             await dbContext.SaveChangesAsync();
+
+            Song? song=await dbContext.Songs.FindAsync(inputModel.SongId);
+
+            if(song!=null && song.PublisherId!=userId)
+            {
+                await notificationService.NotifyCommentAsync(song.Id, comment.Id, comment.Text, userId);
+            }
         }
         public async Task<IEnumerable<CommentViewModel>> GetCommentsAsync(Guid songId, string userId)
         {

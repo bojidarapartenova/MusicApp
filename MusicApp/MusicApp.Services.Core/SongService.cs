@@ -24,11 +24,13 @@ namespace MusicApp.Services.Core
         private readonly MusicAppDbContext dbContext;
         private readonly UserManager<ApplicationUser> userManager;
         private readonly IWebHostEnvironment webHostEnvironment;
-        public SongService(MusicAppDbContext dbContext, UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment)
+        private readonly INotificationsService notificationService;
+        public SongService(MusicAppDbContext dbContext, UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment, INotificationsService notificationService)
         {
             this.dbContext = dbContext;
             this.userManager = userManager;
             this.webHostEnvironment = webHostEnvironment;
+            this.notificationService = notificationService;
         }
 
         public async Task<IEnumerable<SongViewModel>> GetAllSongsAsync(string? searchTerm = null, int? genreId = null)
@@ -286,6 +288,11 @@ namespace MusicApp.Services.Core
 
                     dbContext.Likes.Add(like);
                     song.Likes += 1;
+
+                    if(song.PublisherId!=userId)
+                    {
+                        await notificationService.NotifySongLikedAsync(songId, userId);
+                    }
 
                     await dbContext.SaveChangesAsync();
                     result = true;

@@ -45,6 +45,24 @@
                 .HasForeignKey(ps => ps.SongId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.Entity<Notification>()
+                .HasOne(n=>n.User)
+                .WithMany(n => n.Notifications)
+                .HasForeignKey(n => n.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Notification>()
+                .HasOne(n=>n.Author)
+                .WithMany()
+                .HasForeignKey(n => n.AuthorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Notification>()
+                .HasOne(n => n.Song)
+                .WithMany()
+                .HasForeignKey(n => n.SongId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             builder.Entity<PlaylistSong>().HasQueryFilter(ps => ps.Song.IsDeleted == false);
 
             builder.Entity<Song>()
@@ -69,8 +87,8 @@
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Playlist>()
-                .HasOne(p=>p.User)
-                .WithMany(u=>u.Playlists)
+                .HasOne(p => p.User)
+                .WithMany(u => u.Playlists)
                 .HasForeignKey(u => u.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
