@@ -23,9 +23,12 @@ namespace MusicApp.Web.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> Index(string searchTerm)
+        public async Task<IActionResult> Index(string searchTerm, int? genreId)
         {
-            IEnumerable<SongViewModel> songs = await songService.GetAllSongsAsync(searchTerm);
+            IEnumerable<SongViewModel> songs = await songService.GetAllSongsAsync(searchTerm, genreId);
+
+            ViewBag.Genres = await genreService.GetGenresDropDownAsync();
+            
             return View(songs);
         }
 

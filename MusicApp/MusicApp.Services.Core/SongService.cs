@@ -15,6 +15,7 @@ using System.ComponentModel;
 using Microsoft.AspNetCore.Hosting;
 using System.Diagnostics;
 using TagLib;
+using System.Reflection.Metadata;
 
 namespace MusicApp.Services.Core
 {
@@ -30,7 +31,7 @@ namespace MusicApp.Services.Core
             this.webHostEnvironment = webHostEnvironment;
         }
 
-        public async Task<IEnumerable<SongViewModel>> GetAllSongsAsync(string? searchTerm)
+        public async Task<IEnumerable<SongViewModel>> GetAllSongsAsync(string? searchTerm = null, int? genreId = null)
         {
             IEnumerable<SongViewModel> songs = await dbContext
                 .Songs
@@ -45,6 +46,7 @@ namespace MusicApp.Services.Core
                     Artist = s.Artist,
                     Publisher=s.Publisher.UserName!,
                     Genre=s.Genre.Name,
+                    GenreId=s.GenreId,
                     ReleaseDate=s.ReleaseDate,
                     PublisherId=s.PublisherId,
                     LikesCount=s.Likes
@@ -56,6 +58,12 @@ namespace MusicApp.Services.Core
                 songs = songs
                     .Where(s => s.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
                     .ToList();
+            }
+
+            if(genreId.HasValue)
+            {
+                songs = songs
+                    .Where(s => s.GenreId == genreId.Value);
             }
 
             return songs;

@@ -10,10 +10,28 @@
 
     @{
         ViewData["Title"] = "Songs";
+
+    var selectedGenreId = Context.Request.Query["genreId"].ToString();
+    var searchTerm = Context.Request.Query["searchTerm"].ToString();
      }
 
-<form asp-controller="Song" asp-action="Index" method="get" class="mb-4 d-flex justify-content-center">
-    <input type="text" name="searchTerm" class="form-control w-50 me-2" placeholder="⌕ Search..." value="@Context.Request.Query["searchTerm"]" />
+<form asp-controller="Song" asp-action="Index" method="get" class="mb-4 d-flex justify-content-center gap-2">
+    <input type="text" name="searchTerm" class="form-control w-50" placeholder="⌕ Search..." value="@searchTerm" />
+
+    <select name="genreId" class="form-select w-25">
+        <option value="">All Genres</option>
+        @foreach (var genre in (IEnumerable<AddSongGenreDropDown>)ViewBag.Genres)
+        {
+            var isSelected = genre.GenreId.ToString() == selectedGenreId;
+            <option value="@genre.GenreId" selected="@(isSelected ? "selected" : null)">
+                @genre.Name
+            </option>
+        }
+    </select>
+
+    <button type="submit" class="btn btn-primary">
+        <i class="bi bi-search"></i> Search
+    </button>
 </form>
 
     <h2 style="text-align: center;">All Songs</h2>

@@ -10,7 +10,7 @@ namespace MusicApp.Services.Core.Interfaces
 {
     public interface ISongService
     {
-        Task<IEnumerable<SongViewModel>> GetAllSongsAsync(string? searchTerm=null);
+        Task<IEnumerable<SongViewModel>> GetAllSongsAsync(string? searchTerm=null, int? genreId=null); 
         Task <bool> AddSongAsync(string userId, AddSongInputModel inputModel);
         Task<EditSongInputModel?> GetSongToEditAsync(string userId, string? songId);
         Task<bool> EditSongAsync(EditSongInputModel inputModel);

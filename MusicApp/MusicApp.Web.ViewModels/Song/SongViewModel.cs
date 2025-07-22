@@ -16,6 +16,7 @@ namespace MusicApp.Web.ViewModels.Song
         public string Artist { get; set; } = null!;
         public string Publisher {  get; set; } = null!;
         public string Genre {  get; set; } = null!;
+        public int GenreId {  get; set; }
         public DateTime ReleaseDate { get; set; }
         public string PublisherId { get; set; } = null!; 
         public string AudioUrl { get; set; } = null!;
