@@ -23,10 +23,9 @@ namespace MusicApp.Web.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchTerm)
         {
-            IEnumerable<SongViewModel> songs = await songService.GetAllSongsAsync();
-
+            IEnumerable<SongViewModel> songs = await songService.GetAllSongsAsync(searchTerm);
             return View(songs);
         }
 

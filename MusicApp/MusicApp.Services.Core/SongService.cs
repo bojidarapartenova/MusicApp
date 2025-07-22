@@ -30,7 +30,7 @@ namespace MusicApp.Services.Core
             this.webHostEnvironment = webHostEnvironment;
         }
 
-        public async Task<IEnumerable<SongViewModel>> GetAllSongsAsync()
+        public async Task<IEnumerable<SongViewModel>> GetAllSongsAsync(string? searchTerm)
         {
             IEnumerable<SongViewModel> songs = await dbContext
                 .Songs
@@ -50,6 +50,13 @@ namespace MusicApp.Services.Core
                     LikesCount=s.Likes
                 })
                 .ToArrayAsync();
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                songs = songs
+                    .Where(s => s.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
 
             return songs;
         }

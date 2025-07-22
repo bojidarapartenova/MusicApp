@@ -12,7 +12,13 @@
         ViewData["Title"] = "Songs";
      }
 
+<form asp-controller="Song" asp-action="Index" method="get" class="mb-4 d-flex justify-content-center">
+    <input type="text" name="searchTerm" class="form-control w-50 me-2" placeholder="⌕ Search..." value="@Context.Request.Query["searchTerm"]" />
+</form>
+
     <h2 style="text-align: center;">All Songs</h2>
+
+
 
     @if (!Model.Any())
     {
