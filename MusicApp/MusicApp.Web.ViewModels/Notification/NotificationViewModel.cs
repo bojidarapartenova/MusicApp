@@ -16,6 +16,7 @@ namespace MusicApp.Web.ViewModels.Notification
 
         public Guid SongId { get; set; }
         public string SongTitle { get; set; } = null!;
+        public string? SongImageUrl;
 
         public string AuthorId { get; set; } = null!;
         public string Author { get; set; } = null!;

@@ -81,7 +81,8 @@ namespace MusicApp.Services.Core
                     AuthorId = n.AuthorId,
                     Author = n.Author.UserName!,
                     CommentId = n.CommentId,
-                    Message = n.Message
+                    Message = n.Message,
+                    SongImageUrl = n.Song.ImageUrl
                 })
                 .ToArrayAsync();
 

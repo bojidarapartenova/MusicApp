@@ -2,35 +2,53 @@
 @using MusicApp.Web.ViewModels.Notification
 @model IEnumerable<NotificationViewModel>
 
-<h2>Your Notifications</h2>
+@{
+    ViewData["Title"] = "Your Notifications";
+}
 
-    @if(Model.Any())
-    {
-    <ul>
-        @foreach (var notification in Model)
-        {
-            <li style="@(notification.IsRead ? "" : "font-weight: bold")">
-                @if (notification.Type == NotificationType.Like)
-                {
-                    <span>@notification.Author liked your song: "@notification.SongTitle"</span>
-                }
-                else if (notification.Type == NotificationType.Comment)
-                {
-                    <span>@notification.Author commented on "@notification.SongTitle": "@notification.Message"</span>
-                }
-                <br />
-                <small>@notification.CreatedAt.ToLocalTime().ToString("g")</small> |
-                @if (!notification.IsRead)
-                {
-                    <a href="@Url.Action("MarkAsRead", "Notifications", new { id = notification.Id })">Mark as Read</a>
-                }
-            </li>
-        }
+<link href="~/css/notificationsStyle.css" rel="stylesheet" />
 
-    </ul>
-    }
-    else
-    {
-        <p>You don't have any notifications yet.</p>
-    }
-    
+<h2 style="color: #ccd0cf;">Your Notifications</h2>
+
+@if (Model.Any())
+{
+    <table class="notifications-table">
+        <tbody>
+            @foreach (var notification in Model)
+            {
+                <tr style="@(notification.IsRead ? "" : "font-weight: bold")">
+                    <td>
+                        <img src="@notification.SongImageUrl" alt="Cover" style="height: 60px; border-radius: 5px;" />
+                    </td>
+                    <td style="text-align: left;">
+                        @if (notification.Type == NotificationType.Like)
+                        {
+                            <span>@notification.Author liked your song "<strong>@notification.SongTitle</strong>"</span>
+                        }
+                        else if (notification.Type == NotificationType.Comment)
+                        {
+                            <span>@notification.Author commented on "<strong>@notification.SongTitle</strong>": "@notification.Message"</span>
+                        }
+                    </td>
+                    <td>
+                        @notification.CreatedAt.ToLocalTime().ToString("g")
+                    </td>
+                    <td>
+                        @if (!notification.IsRead)
+                        {
+                            <a class="btn-action" href="@Url.Action("MarkAsRead", "Notifications", new { id = notification.Id })">Mark as Read</a>
+                        }
+                        else
+                        {
+                            <span style="color: #6a6a6a;">Read</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p style="color: #888; margin-top: 2rem;">You don't have any notifications yet.</p>
+}

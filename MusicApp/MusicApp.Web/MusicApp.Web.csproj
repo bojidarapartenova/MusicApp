@@ -30,4 +30,8 @@
     <Folder Include="wwwroot\audio\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="wwwroot\css\notificationsStyle.css" />
+  </ItemGroup>
+
 </Project>
