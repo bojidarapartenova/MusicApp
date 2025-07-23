@@ -13,5 +13,6 @@ namespace MusicApp.Services.Core.Interfaces
         Task NotifyCommentAsync(Guid songId, Guid commentId, string message, string authorId);
         Task<IEnumerable<NotificationViewModel>> GetAllNotificationsAsync(string userId);
         Task MarkAsReadAsync(Guid notificationId);
+        Task<int> GetUnreadAsync(string userId);
     }
 }

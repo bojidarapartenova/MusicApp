@@ -100,5 +100,14 @@ namespace MusicApp.Services.Core
                 await dbContext.SaveChangesAsync();
             }
         }
+
+        public async Task<int> GetUnreadAsync(string userId)
+        {
+            int unreadNotifications= await dbContext
+                .Notifications
+                .CountAsync(n=>n.UserId == userId && !n.IsRead);
+            
+            return unreadNotifications;
+        }
     }
 }

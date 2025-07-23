@@ -1,7 +1,36 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using MusicApp.Data.Models
 @inject SignInManager<ApplicationUser> SignInManager
+
+@using System.Security.Claims
+@using MusicApp.Services.Core.Interfaces
+@inject INotificationsService NotificationService
+
+
+    <style >
+    .notification-badge {
+        background-color: red;
+        color: white;
+        font-size: 0.75rem;
+        font-weight: bold;
+        padding: 2px 6px;
+        border-radius: 12px;
+        margin-left: 6px;
+        vertical-align: middle;
+    }
+</style>
+
 <!DOCTYPE html>
+@{
+    string? userId = User?.FindFirstValue(ClaimTypes.NameIdentifier);
+    int unreadCount = 0;
+
+    if (SignInManager.IsSignedIn(User) && userId != null)
+    {
+        unreadCount = await NotificationService.GetUnreadAsync(userId);
+    }
+}
+
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -26,6 +55,7 @@
                         <li class="nav-item">
                             <a class="nav-link text-white" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
+
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle text-white" href="#" id="songsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Songs
@@ -49,9 +79,16 @@
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-area="" asp-controller="Playlists" asp-action="Index">Playlists</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-white" asp-area="" asp-controller="Notifications" asp-action="Index">Notifications</a>
+                            <li class="nav-item position-relative">
+                                <a class="nav-link text-white" asp-area="" asp-controller="Notifications" asp-action="Index">
+                                    Notifications
+                                    @if (unreadCount > 0)
+                                    {
+                                        <span class="notification-badge">@unreadCount</span>
+                                    }
+                                </a>
                             </li>
+
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-area="" asp-controller="MyReleases" asp-action="Index">My Releases</a>
                             </li>
