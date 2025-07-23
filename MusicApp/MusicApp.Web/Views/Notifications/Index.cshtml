@@ -4,11 +4,26 @@
 
 @{
     ViewData["Title"] = "Your Notifications";
+    var currentFilter = Context.Request.Query["filter"].ToString();
 }
 
 <link href="~/css/notificationsStyle.css" rel="stylesheet" />
 
-<h2 style="color: #ccd0cf;">Your Notifications</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 style="color: #ccd0cf; margin: 0;">Your Notifications</h2>
+
+    <form asp-controller="Notifications" asp-action="Index" method="get" class="d-flex gap-2">
+        <select name="filter"
+                class="form-select form-select-sm w-auto"
+                onchange="this.form.submit()"
+                style="background-color: #111; color: #ccd0cf; border: 1px solid #4a5c6a;">
+            <option value="" selected="@(string.IsNullOrEmpty(currentFilter) ? "selected" : null)">All</option>
+            <option value="like" selected="@(currentFilter == "like" ? "selected" : null)">Likes</option>
+            <option value="comment" selected="@(currentFilter == "comment" ? "selected" : null)">Comments</option>
+        </select>
+    </form>
+</div>
+
 
 @if (Model.Any())
 {

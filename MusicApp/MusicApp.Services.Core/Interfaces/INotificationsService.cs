@@ -11,7 +11,7 @@ namespace MusicApp.Services.Core.Interfaces
     {
         Task NotifySongLikedAsync(Guid songId, string authorId);
         Task NotifyCommentAsync(Guid songId, Guid commentId, string message, string authorId);
-        Task<IEnumerable<NotificationViewModel>> GetAllNotificationsAsync(string userId);
+        Task<IEnumerable<NotificationViewModel>> GetAllNotificationsAsync(string userId, string? filter=null);
         Task MarkAsReadAsync(Guid notificationId);
         Task<int> GetUnreadAsync(string userId);
     }

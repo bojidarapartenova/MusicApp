@@ -16,10 +16,10 @@ namespace MusicApp.Web.Controllers
             this.notificationsService = notificationsService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? filter)
         {
             IEnumerable<NotificationViewModel> notifications = await notificationsService
-                .GetAllNotificationsAsync(GetUserId()!);
+                .GetAllNotificationsAsync(GetUserId()!, filter);
 
             return View(notifications);
         }

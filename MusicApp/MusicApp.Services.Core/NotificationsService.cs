@@ -63,7 +63,7 @@ namespace MusicApp.Services.Core
             }
         }
 
-        public async Task<IEnumerable<NotificationViewModel>> GetAllNotificationsAsync(string userId)
+        public async Task<IEnumerable<NotificationViewModel>> GetAllNotificationsAsync(string userId, string? filter = null)
         {
             IEnumerable<NotificationViewModel> notifications = await dbContext
                 .Notifications
@@ -74,7 +74,7 @@ namespace MusicApp.Services.Core
                 {
                     Id = n.Id,
                     Type = n.Type,
-                    IsRead = n.IsRead,
+                    IsRead = n.IsRead,  
                     CreatedAt = n.CreatedAt,
                     SongId = n.SongId,
                     SongTitle = n.Song.Title,
@@ -85,6 +85,18 @@ namespace MusicApp.Services.Core
                     SongImageUrl = n.Song.ImageUrl
                 })
                 .ToArrayAsync();
+
+            if(!string.IsNullOrEmpty(filter))
+            {
+                if(filter.ToLower()=="like")
+                {
+                    notifications = notifications.Where(n => n.Type == NotificationType.Like);
+                }
+                else if (filter.ToLower()=="comment")
+                {
+                    notifications=notifications.Where(n=>n.Type == NotificationType.Comment);
+                }
+            }
 
             return notifications;
         }
