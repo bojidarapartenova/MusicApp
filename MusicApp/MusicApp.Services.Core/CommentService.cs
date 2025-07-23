@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using MusicApp.Data.Data;
 using MusicApp.Data.Models;
+using MusicApp.Data.Models.Enums;
 using MusicApp.Services.Core.Interfaces;
 using MusicApp.Web.ViewModels.Comment;
 
@@ -88,6 +89,13 @@ namespace MusicApp.Services.Core
                 deletedComment.UserId==viewModel.PublisherId)
             {
                 deletedComment.IsDeleted = true;
+
+                IEnumerable<Notification> notificationsToRemove = dbContext
+                    .Notifications
+                    .Where(n => n.CommentId == viewModel.Id && n.Type == NotificationType.Comment);
+
+                dbContext.Notifications.RemoveRange(notificationsToRemove);
+
                 await dbContext.SaveChangesAsync();
                 return true;
             }

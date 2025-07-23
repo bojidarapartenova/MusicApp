@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Hosting;
 using System.Diagnostics;
 using TagLib;
 using System.Reflection.Metadata;
+using MusicApp.Data.Models.Enums;
 
 namespace MusicApp.Services.Core
 {
@@ -274,6 +275,17 @@ namespace MusicApp.Services.Core
                 {
                     dbContext.Likes.Remove(existingLike);
                     song.Likes-=1;
+
+                    Notification? notificationToRemove=await dbContext
+                        .Notifications
+                        .FirstOrDefaultAsync(n=>n.SongId== songId &&
+                        n.AuthorId==userId &&
+                        n.Type==NotificationType.Like);
+
+                    if (notificationToRemove != null)
+                    {
+                        dbContext.Notifications.Remove(notificationToRemove);
+                    }
 
                     await dbContext.SaveChangesAsync();
                 }
