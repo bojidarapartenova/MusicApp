@@ -121,13 +121,11 @@
 
             if (!button) return;
 
-            // Populate song details in the modal
             document.getElementById('modalArtist').textContent = button.getAttribute('data-artist') || '';
             document.getElementById('modalPublisher').textContent = button.getAttribute('data-publisher') || '';
             document.getElementById('modalGenre').textContent = button.getAttribute('data-genre') || '';
             document.getElementById('modalReleaseDate').textContent = button.getAttribute('data-date') || '';
 
-            // Get access flags
             var isOwner = button.getAttribute('data-isowner') === 'true';
             var isAdmin = button.getAttribute('data-isadmin') === 'true';
 
@@ -138,7 +136,6 @@
             if (isOwner || isAdmin) {
                 modalButtons.classList.remove('d-none');
 
-                // Show Edit button only if user is the owner (not admin of others' content)
                 if (isOwner) {
                     editBtn.classList.remove('d-none');
                     editBtn.setAttribute('href', button.getAttribute('data-editurl'));
@@ -147,7 +144,6 @@
                     editBtn.removeAttribute('href');
                 }
 
-                // Show Delete button for both owner and admin
                 deleteBtn.classList.remove('d-none');
                 deleteBtn.setAttribute('href', button.getAttribute('data-deleteurl'));
             } else {

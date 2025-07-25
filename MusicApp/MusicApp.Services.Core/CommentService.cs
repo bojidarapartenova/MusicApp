@@ -33,9 +33,9 @@ namespace MusicApp.Services.Core
             await dbContext.Comments.AddAsync(comment);
             await dbContext.SaveChangesAsync();
 
-            Song? song=await dbContext.Songs.FindAsync(inputModel.SongId);
+            Song? song = await dbContext.Songs.FindAsync(inputModel.SongId);
 
-            if(song!=null && song.PublisherId!=userId)
+            if (song != null && song.PublisherId != userId)
             {
                 await notificationService.NotifyCommentAsync(song.Id, comment.Id, comment.Text, userId);
             }
@@ -51,9 +51,9 @@ namespace MusicApp.Services.Core
                     Username = c.User.UserName!,
                     Text = c.Text,
                     CreatedOn = c.CreatedOn,
-                    IsOwner=c.UserId == userId,
-                    Id=c.Id,
-                    UserId=userId
+                    IsOwner = c.UserId == userId,
+                    Id = c.Id,
+                    UserId = userId
                 })
                 .ToListAsync();
 
@@ -62,6 +62,7 @@ namespace MusicApp.Services.Core
         public async Task<DeleteCommentViewModel?> GetCommentToDeleteAsync(string userId, Guid commentId)
         {
             DeleteCommentViewModel? commentToDelete = null;
+            ApplicationUser? user = await userManager.FindByIdAsync(userId);
 
             Comment? comment = await dbContext
                 .Comments
@@ -69,14 +70,18 @@ namespace MusicApp.Services.Core
                 .AsNoTracking()
                 .SingleOrDefaultAsync(c => c.Id == commentId);
 
-            if (comment != null && comment.UserId.ToLower() == userId.ToLower())
+            if (comment != null && user != null)
             {
-                commentToDelete = new DeleteCommentViewModel()
+                bool isUserAdmin = await userManager.IsInRoleAsync(user, "Admin");
+                if (comment.UserId.ToLower() == userId.ToLower() || isUserAdmin)
                 {
-                    Id = comment.Id,
-                    PublisherId = comment.UserId,
-                    SongId=comment.SongId
-                };
+                    commentToDelete = new DeleteCommentViewModel()
+                    {
+                        Id = comment.Id,
+                        PublisherId = comment.UserId,
+                        SongId = comment.SongId
+                    };
+                }
             }
             return commentToDelete;
         }
@@ -84,20 +89,25 @@ namespace MusicApp.Services.Core
         public async Task<bool> SoftDeleteCommentAsync(string userId, DeleteCommentViewModel viewModel)
         {
             var deletedComment = await dbContext.Comments.FindAsync(viewModel.Id);
+            ApplicationUser? user = await userManager.FindByIdAsync(userId);
 
-            if (deletedComment != null &&
-                deletedComment.UserId==viewModel.PublisherId)
+            if (deletedComment != null && user != null)
             {
-                deletedComment.IsDeleted = true;
+                bool isUserAdmin = await userManager.IsInRoleAsync(user, "Admin");
 
-                IEnumerable<Notification> notificationsToRemove = dbContext
-                    .Notifications
-                    .Where(n => n.CommentId == viewModel.Id && n.Type == NotificationType.Comment);
+                if (deletedComment.UserId == viewModel.PublisherId || isUserAdmin)
+                {
+                    deletedComment.IsDeleted = true;
 
-                dbContext.Notifications.RemoveRange(notificationsToRemove);
+                    IEnumerable<Notification> notificationsToRemove = dbContext
+                        .Notifications
+                        .Where(n => n.CommentId == viewModel.Id && n.Type == NotificationType.Comment);
 
-                await dbContext.SaveChangesAsync();
-                return true;
+                    dbContext.Notifications.RemoveRange(notificationsToRemove);
+
+                    await dbContext.SaveChangesAsync();
+                    return true;
+                }
             }
 
             return false;

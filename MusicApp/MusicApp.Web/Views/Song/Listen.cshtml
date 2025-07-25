@@ -4,6 +4,7 @@
 @{
     ViewData["Title"] = "Now Playing";
     var durationInMinutes = $"{Model.Duration / 60:D2}:{Model.Duration % 60:D2}";
+    var isAdmin = User.IsInRole("Admin");
 }
 
 <link href="~/css/listenStyle.css" rel="stylesheet" />
@@ -63,7 +64,7 @@
                         <small style="color:gray;"> - @comment.CreatedOn.ToShortTimeString() @comment.CreatedOn.ToShortDateString()</small>
                         <p style="margin:0.2rem 0;">@comment.Text</p>
 
-                        @if (comment.IsOwner)
+                        @if (comment.IsOwner || isAdmin)
                         {
                             <form class="delete-comment-form" asp-action="DeleteComment" method="post" style="position:absolute; top:0.5rem; right:0.5rem;">
                                 @Html.AntiForgeryToken()
