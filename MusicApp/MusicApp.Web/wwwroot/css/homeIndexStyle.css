@@ -28,7 +28,7 @@
     color: white;
     padding: 10px;
     border-radius: 10px;
-    text-align: center;
+    text-align: left;
     width: 200px;
     height: 260px;
     display: flex;
@@ -44,13 +44,11 @@
         border-radius: 8px;
     }
 
-
-
 .song-title {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-top: 10px;
+    margin: 10px;
     padding: 0 5px;
     font-size: 16px;
 }
@@ -70,33 +68,6 @@
         background-color: #2c363d;
         color: white;
     }
-
-.swiper {
-    position: relative;
-    overflow: visible;
-    padding: 40px 20px;
-    margin-bottom: 60px;
-}
-
-.swiper-button-prev,
-.swiper-button-next {
-    color: white;
-    background-color: rgba(0, 0, 0, 0.6);
-    padding: 12px;
-    border-radius: 50%;
-    top: 50%;
-    transform: translateY(-50%);
-    position: absolute;
-    z-index: 100;
-}
-
-.swiper-button-prev {
-    left: -50px;
-}
-
-.swiper-button-next {
-    right: -50px;
-}
 
 .journey-bar {
     background-color: #1e1e1e;
@@ -123,3 +94,17 @@
     #now:hover {
         background-color: #2c363d;
     }
+
+.swiper-container-wrapper {
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding: 0 1rem;
+    align-items: center;
+}
+
+
+.swiper {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+}

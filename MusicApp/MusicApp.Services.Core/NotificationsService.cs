@@ -96,6 +96,10 @@ namespace MusicApp.Services.Core
                 {
                     notifications=notifications.Where(n=>n.Type == NotificationType.Comment);
                 }
+                else if(filter.ToLower()=="unread")
+                {
+                    notifications = notifications.Where(n => n.IsRead == false);
+                }
             }
 
             return notifications;

@@ -20,6 +20,7 @@
             <option value="" selected="@(string.IsNullOrEmpty(currentFilter) ? "selected" : null)">All</option>
             <option value="like" selected="@(currentFilter == "like" ? "selected" : null)">Likes</option>
             <option value="comment" selected="@(currentFilter == "comment" ? "selected" : null)">Comments</option>
+            <option value="unread" selected="@(currentFilter=="unread" ? "selected" : null)">Unread</option>
         </select>
     </form>
 </div>

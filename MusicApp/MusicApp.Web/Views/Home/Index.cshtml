@@ -11,27 +11,29 @@
 <link href="~/css/homeIndexStyle.css" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="~/js/swiper.js"></script>
 
-    <main class="text-center mb-5">
-        <h1 style="color: #ccd0cf;">Welcome to MusicApp</h1>
-    </main>
 
-    <section class="d-flex justify-content-around flex-wrap text-center mb-5">
-        <div class="info mb-4" style="flex: 1; min-width: 200px; max-width: 300px;">
-            <h4 style="color: #ccd0cf;">Discover</h4>
-            <p>Find remixed versions of your favorite songs and discover new artists.</p>
-        </div>
+<main class="text-center mb-5">
+    <h1 style="color: #ccd0cf;">Welcome to MusicApp</h1>
+</main>
 
-        <div class="info mb-4" style="flex: 1; min-width: 200px; max-width: 300px;">
-            <h4 style="color: #ccd0cf;">Remix</h4>
-            <p>Upload your own versions and put your spin on original tracks.</p>
-        </div>
+<section class="d-flex justify-content-around flex-wrap text-center mb-5">
+    <div class="info mb-4" style="flex: 1; min-width: 200px; max-width: 300px;">
+        <h4 style="color: #ccd0cf;">Discover</h4>
+        <p>Find remixed versions of your favorite songs and discover new artists.</p>
+    </div>
 
-        <div class="info mb-4" style="flex: 1; min-width: 200px; max-width: 300px;">
-            <h4 style="color: #ccd0cf;">Credit</h4>
-            <p>Respect the originals. Give credit to the artists you remix.</p>
-        </div>
-    </section>
+    <div class="info mb-4" style="flex: 1; min-width: 200px; max-width: 300px;">
+        <h4 style="color: #ccd0cf;">Remix</h4>
+        <p>Upload your own versions and put your spin on original tracks.</p>
+    </div>
+
+    <div class="info mb-4" style="flex: 1; min-width: 200px; max-width: 300px;">
+        <h4 style="color: #ccd0cf;">Credit</h4>
+        <p>Respect the originals. Give credit to the artists you remix.</p>
+    </div>
+</section>
 
 <div class="journey-bar">
     <p>Let your journey begin</p>
@@ -40,45 +42,29 @@
     </a>
 </div>
 
-<div class="swiper mySwiper">
-    <div class="swiper-wrapper">
-        @foreach (var song in Model)
-        {
-            <div class="swiper-slide">
-                <div class="song-card">
-                    <img src="@song.ImageUrl" alt="@song.Title" />
-                    <div class="song-title">
-                        <span>@song.Title</span>
-                        <a class="play-button" href="@(User.Identity.IsAuthenticated ?
-                                Url.Action("Listen", "Song", new { id = song.Id })
-                                : "/Identity/Account/Login")">
-                            ▷
-                        </a>
+<div class="swiper-container-wrapper">
+    <div class="swiper-button-prev"></div>
+
+    <div class="swiper mySwiper">
+        <div class="swiper-wrapper">
+            @foreach (var song in Model)
+            {
+                <div class="swiper-slide">
+                    <div class="song-card">
+                        <img src="@song.ImageUrl" alt="@song.Title" />
+                        <div class="song-title">
+                            <span>@song.Title</span>
+                            <a class="play-button" href="@(User.Identity.IsAuthenticated ?
+                                    Url.Action("Listen", "Song", new { id = song.Id })
+                                    : "/Identity/Account/Login")">
+                                ▷
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
-        }
+            }
+        </div>
     </div>
-    <div class="swiper-button-prev"></div>
+
     <div class="swiper-button-next"></div>
 </div>
-
-
-<script>
-    var swiper = new Swiper(".mySwiper", {
-        slidesPerView: 5,
-        spaceBetween: 20,
-        loop: false,
-        navigation: {
-            nextEl: ".swiper-button-next",
-            prevEl: ".swiper-button-prev",
-        },
-        breakpoints: {
-            320: { slidesPerView: 1 },
-            640: { slidesPerView: 2 },
-            768: { slidesPerView: 3 },
-            1024: { slidesPerView: 4 },
-            1280: { slidesPerView: 5 }
-        },
-    });
-</script>
