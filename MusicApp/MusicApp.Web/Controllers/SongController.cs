@@ -138,6 +138,7 @@ namespace MusicApp.Web.Controllers
 
                 if (songToDelete == null)
                 {
+                    Console.WriteLine("song to delete is nullllll");
                     return RedirectToAction(nameof(Index));
                 }
                 return View(songToDelete);
@@ -156,12 +157,14 @@ namespace MusicApp.Web.Controllers
             {
                 if (!ModelState.IsValid)
                 {
+                    Console.WriteLine("invalid modellllllll");
                     return View(viewModel);
                 }
                 bool result = await songService.SoftDeleteSongAsync(GetUserId()!, viewModel);
 
                 if (result == false)
                 {
+                    Console.WriteLine("result falseeee");
                     return View(viewModel);
                 }
                 return RedirectToAction(nameof(Index));

@@ -13,6 +13,10 @@
 
     var selectedGenreId = Context.Request.Query["genreId"].ToString();
     var searchTerm = Context.Request.Query["searchTerm"].ToString();
+
+    var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    var isAdmin = User.IsInRole("Admin");
+
      }
 
 <form asp-controller="Song" asp-action="Index" method="get" class="mb-4 d-flex justify-content-center gap-2">
@@ -66,19 +70,20 @@
                     }
 
 
-                        <button type="button" class="details-button"
-                                data-bs-toggle="modal"
-                                data-bs-target="#songDetailsModal"
-                                data-id="@song.Id"
-                                data-artist="@song.Artist"
-                                data-publisher="@song.Publisher"
-                                data-genre="@song.Genre"
-                                data-date="@(song.ReleaseDate.ToString("yyyy-MM-dd") ?? "")"
-                                data-editurl="@Url.Action("Edit", "Song", new { id = song.Id })"
-                                data-deleteurl="@Url.Action("Delete", "Song", new { id = song.Id })"
-                                data-isowner="@isOwner.ToString().ToLower()">
-                            View Details
-                        </button>
+                    <button type="button" class="details-button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#songDetailsModal"
+                            data-id="@song.Id"
+                            data-artist="@song.Artist"
+                            data-publisher="@song.Publisher"
+                            data-genre="@song.Genre"
+                            data-date="@(song.ReleaseDate.ToString("yyyy-MM-dd") ?? "")"
+                            data-editurl="@Url.Action("Edit", "Song", new { id = song.Id })"
+                            data-deleteurl="@Url.Action("Delete", "Song", new { id = song.Id })"
+                            data-isowner="@isOwner.ToString().ToLower()"
+                            data-isadmin="@isAdmin.ToString().ToLower()">
+                        View Details
+                    </button>
                     </div>
                 </div>
             }
@@ -107,36 +112,53 @@
         </div>
     </div>
 
-    <script>
-        window.addEventListener('load', function () {
-            var modal = document.getElementById('songDetailsModal');
+<script>
+    window.addEventListener('load', function () {
+        var modal = document.getElementById('songDetailsModal');
 
-            modal.addEventListener('show.bs.modal', function (event) {
-                var button = event.relatedTarget;
+        modal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
 
-                if (!button) return;
+            if (!button) return;
 
-                document.getElementById('modalArtist').textContent = button.getAttribute('data-artist') || '';
-                document.getElementById('modalPublisher').textContent = button.getAttribute('data-publisher') || '';
-                document.getElementById('modalGenre').textContent = button.getAttribute('data-genre') || '';
-                document.getElementById('modalReleaseDate').textContent = button.getAttribute('data-date') || '';
+            // Populate song details in the modal
+            document.getElementById('modalArtist').textContent = button.getAttribute('data-artist') || '';
+            document.getElementById('modalPublisher').textContent = button.getAttribute('data-publisher') || '';
+            document.getElementById('modalGenre').textContent = button.getAttribute('data-genre') || '';
+            document.getElementById('modalReleaseDate').textContent = button.getAttribute('data-date') || '';
 
-                var isOwner = button.getAttribute('data-isowner') === 'true';
-                var modalButtons = document.getElementById('modalButtons');
+            // Get access flags
+            var isOwner = button.getAttribute('data-isowner') === 'true';
+            var isAdmin = button.getAttribute('data-isadmin') === 'true';
 
+            var modalButtons = document.getElementById('modalButtons');
+            var editBtn = document.getElementById('editBtn');
+            var deleteBtn = document.getElementById('deleteBtn');
+
+            if (isOwner || isAdmin) {
+                modalButtons.classList.remove('d-none');
+
+                // Show Edit button only if user is the owner (not admin of others' content)
                 if (isOwner) {
-                    modalButtons.classList.remove('d-none');
-                    document.getElementById('editBtn').setAttribute('href', button.getAttribute('data-editurl'));
-                   document.getElementById('deleteBtn').setAttribute('href', button.getAttribute('data-deleteurl'));
-
+                    editBtn.classList.remove('d-none');
+                    editBtn.setAttribute('href', button.getAttribute('data-editurl'));
                 } else {
-                    modalButtons.classList.add('d-none');
-                    document.getElementById('editBtn').removeAttribute('href');
-                    document.getElementById('deleteBtn').onclick = null;
+                    editBtn.classList.add('d-none');
+                    editBtn.removeAttribute('href');
                 }
-            });
+
+                // Show Delete button for both owner and admin
+                deleteBtn.classList.remove('d-none');
+                deleteBtn.setAttribute('href', button.getAttribute('data-deleteurl'));
+            } else {
+                modalButtons.classList.add('d-none');
+                editBtn.removeAttribute('href');
+                deleteBtn.removeAttribute('href');
+            }
         });
-    </script>
+    });
+</script>
+
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 

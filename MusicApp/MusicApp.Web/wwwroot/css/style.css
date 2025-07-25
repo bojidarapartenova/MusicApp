@@ -91,8 +91,8 @@ label {
         border-color: #2c363d;
     }
 
-    #registerSubmit:active, #login-submit:active, #save-changes:active, #btn-add:active,
-    #registerSubmit:focus, #login-submit:focus, #save-changes:focus, #btn-add:focus {
+    #registerSubmit:active, #login-submit:active, #save-changes:active, #btn-add:active, #btn-cancel:active,
+    #registerSubmit:focus, #login-submit:focus, #save-changes:focus, #btn-add:focus, #btn-cancel:focus {
         background-color: inherit; 
         color: inherit; 
         border-color: inherit; 
@@ -121,4 +121,19 @@ label {
     .link:hover {
         color: #2c363d;
         text-decoration: underline;
+    }
+
+#btn-cancel {
+    background-color: #4A5C6A;
+    color: white;
+    border-radius: 6px;
+    padding: 10px 16px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+    #btn-cancel:hover {
+        background-color: #2c363d;
+        border-color: #2c363d;
     }

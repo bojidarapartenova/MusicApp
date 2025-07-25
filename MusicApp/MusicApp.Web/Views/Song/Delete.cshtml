@@ -1,5 +1,6 @@
 ﻿@using MusicApp.Web.ViewModels.Song
 @model DeleteSongViewModel
+
 @{
     ViewData["Title"] = "Delete Song";
 }
@@ -8,24 +9,28 @@
 
 <div class="row">
     <div class="col-md-4">
-        <h1>@ViewData["Title"]</h1>
+        <h1 class="text-white">@ViewData["Title"]</h1>
         <hr />
-                <p class="mb-0" style="color: white"><strong>Published By:</strong> @Model.Publisher</p>
-                <p style="color: white">
-                    Are you sure you want to delete <strong>@Model.Title</strong>?
-                </p>
-            <div class="card-footer d-flex justify-content-between">
-                <form asp-action="Delete" method="post">
-                    <input type="hidden" asp-for="Id" />
-                    <input type="hidden" asp-for="Title" />
-                    <input type="hidden" asp-for="PublisherId" />
-                    <button type="submit" class="btn btn-danger" style="border-radius: 6px; padding: 10px;">
-                        <i class="fas fa-trash"></i> Confirm Delete
-                    </button>
-                </form>
-                <a asp-controller="Song" asp-action="Index" asp-route-id="@Model.Id" id="btn-add" style="text-decoration:none; margin: 0; padding:10px;" >
-                    <i class="fas fa-times-circle" style="border-radius: 6px"></i> Cancel
-                </a>
+        <p class="mb-0 text-white"><strong>Published By:</strong> @Model.Publisher</p>
+        <p class="text-white">
+            Are you sure you want to delete <strong>@Model.Title</strong>?
+        </p>
+
+        <div class="d-flex align-items-center gap-3 mt-4">
+            <form asp-action="Delete" method="post" class="m-0">
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="Title" />
+                <input type="hidden" asp-for="PublisherId" />
+                <button type="submit" class="btn btn-danger" style="border-radius: 6px; padding: 10px 16px;">
+                    <i class="fas fa-trash"></i> Confirm Delete
+                </button>
+            </form>
+
+            <a asp-controller="Song"
+               asp-action="Index"
+               id="btn-cancel">
+                <i class="fas fa-times-circle"></i> Cancel
+            </a>
         </div>
     </div>
 </div>

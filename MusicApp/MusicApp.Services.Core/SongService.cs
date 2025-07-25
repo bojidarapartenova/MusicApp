@@ -197,8 +197,9 @@ namespace MusicApp.Services.Core
             DeleteSongViewModel? songToDelete=null;
 
             bool isGuidValid = Guid.TryParse(songId, out Guid id);
+            ApplicationUser? user= await userManager.FindByIdAsync(userId);
 
-            if(songId!=null)
+            if(songId!=null && user!=null)
             {
                 Song? song=await dbContext
                     .Songs
@@ -206,7 +207,9 @@ namespace MusicApp.Services.Core
                     .AsNoTracking()
                     .SingleOrDefaultAsync(s=>s.Id==id);
 
-                if(song!=null && song.PublisherId.ToLower()==userId.ToLower())
+                bool isUserAdmin = await userManager.IsInRoleAsync(user, "Admin");
+
+                if(song!=null && song.PublisherId.ToLower()==userId.ToLower() || isUserAdmin)
                 {
                     songToDelete = new DeleteSongViewModel()
                     {
@@ -227,13 +230,18 @@ namespace MusicApp.Services.Core
             ApplicationUser? user=await userManager.FindByIdAsync(userId);
             Song? deletedSong=await dbContext.Songs.FindAsync(viewModel.Id);
 
-            if(user!=null && deletedSong!=null &&
-                deletedSong.PublisherId.ToLower()==userId.ToLower())
-            {
-                deletedSong.IsDeleted=true;
 
-                await dbContext.SaveChangesAsync();
-                result = true;
+            if (user!=null && deletedSong!=null)
+            {
+                bool isUserAdmin = await userManager.IsInRoleAsync(user, "Admin");
+
+                if(isUserAdmin || deletedSong.PublisherId.ToLower() == userId.ToLower())
+                {
+                    deletedSong.IsDeleted = true;
+
+                    await dbContext.SaveChangesAsync();
+                    result = true;
+                }
             }
             return result;
         }
