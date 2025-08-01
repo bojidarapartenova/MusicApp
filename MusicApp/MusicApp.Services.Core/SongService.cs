@@ -34,7 +34,7 @@ namespace MusicApp.Services.Core
             this.notificationService = notificationService;
         }
 
-        public async Task<IEnumerable<SongViewModel>> GetAllSongsAsync(string? searchTerm = null, int? genreId = null)
+        public async Task<(IEnumerable<SongViewModel> Songs, int totalCount)> GetAllSongsAsync(string? searchTerm = null, int? genreId = null, int? page = null, int? pageSize = null)
         {
             IEnumerable<SongViewModel> songs = await dbContext
                 .Songs
@@ -69,7 +69,23 @@ namespace MusicApp.Services.Core
                     .Where(s => s.GenreId == genreId.Value);
             }
 
-            return songs;
+            int totalCount= songs.Count();
+
+            if (page.HasValue && pageSize.HasValue)
+            {
+                songs = songs
+                    .OrderByDescending(s => s.ReleaseDate)
+                    .Skip((page.Value - 1) * pageSize.Value)
+                    .Take(pageSize.Value);
+
+            }
+            else
+            {
+                songs = songs
+                    .OrderByDescending(s => s.ReleaseDate);
+            }
+
+            return (songs, totalCount);
         }
 
         public async Task<bool> AddSongAsync(string userId, AddSongInputModel inputModel)

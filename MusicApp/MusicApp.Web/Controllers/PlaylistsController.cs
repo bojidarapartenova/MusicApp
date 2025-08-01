@@ -34,7 +34,7 @@ namespace MusicApp.Web.Controllers
         {
             try
             {
-                var songs = await songService.GetAllSongsAsync();
+                var (songs, _) = await songService.GetAllSongsAsync();
 
                 var viewModel = new CreatePlaylistViewModel
                 {

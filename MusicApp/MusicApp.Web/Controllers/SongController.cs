@@ -23,11 +23,15 @@ namespace MusicApp.Web.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> Index(string searchTerm, int? genreId)
+        public async Task<IActionResult> Index(string searchTerm, int? genreId, int page=1)
         {
-            IEnumerable<SongViewModel> songs = await songService.GetAllSongsAsync(searchTerm, genreId);
+            const int pageSize = 9;
+
+            (IEnumerable<SongViewModel> songs, int totalCount) = await songService.GetAllSongsAsync(searchTerm, genreId, page, pageSize);
 
             ViewBag.Genres = await genreService.GetGenresDropDownAsync();
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages=(int)Math.Ceiling((double)totalCount/pageSize);
             
             return View(songs);
         }
