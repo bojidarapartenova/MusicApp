@@ -11,7 +11,6 @@
     var selectedGenreId = Context.Request.Query["genreId"].ToString();
     var searchTerm = Context.Request.Query["searchTerm"].ToString();
     var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-    var isAdmin = User.IsInRole("Admin");
 }
 
 <form asp-controller="Song" asp-action="Index" method="get" class="mb-4 d-flex justify-content-center gap-2">
@@ -69,8 +68,7 @@ else
                             data-date="@(song.ReleaseDate.ToString("yyyy-MM-dd"))"
                             data-editurl="@Url.Action("Edit", "Song", new { id = song.Id })"
                             data-deleteurl="@Url.Action("Delete", "Song", new { id = song.Id })"
-                            data-isowner="@isOwner.ToString().ToLower()"
-                            data-isadmin="@isAdmin.ToString().ToLower()">
+                            data-isowner="@isOwner.ToString().ToLower()">
                         View Details
                     </button>
                 </div>
@@ -129,13 +127,12 @@ else
             document.getElementById('modalReleaseDate').textContent = button.getAttribute('data-date') || '';
 
             var isOwner = button.getAttribute('data-isowner') === 'true';
-            var isAdmin = button.getAttribute('data-isadmin') === 'true';
 
             var modalButtons = document.getElementById('modalButtons');
             var editBtn = document.getElementById('editBtn');
             var deleteBtn = document.getElementById('deleteBtn');
 
-            if (isOwner || isAdmin) {
+            if (isOwner) {
                 modalButtons.classList.remove('d-none');
 
                 if (isOwner) {
