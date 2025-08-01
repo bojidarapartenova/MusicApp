@@ -23,5 +23,6 @@ namespace MusicApp.Web.ViewModels.Song
         public bool IsLiked { get; set; }
         public int LikesCount {  get; set; }
         public IEnumerable<CommentViewModel> Comments { get; set; }=new List<CommentViewModel>();
+        public int CommentsCount { get; set; }
     }
 }

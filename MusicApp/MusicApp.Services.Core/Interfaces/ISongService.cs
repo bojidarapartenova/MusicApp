@@ -19,5 +19,8 @@ namespace MusicApp.Services.Core.Interfaces
         Task<SongViewModel?> GetSongByIdAsync(string songId);
         Task<bool> ToggleLikeAsync(string userId, Guid songId);
         Task<int> GetSongLikeCountAsync(Guid songId);
+        Task<int> GetSongsCountAsync();
+        Task<IEnumerable<SongViewModel>> GetLatestSongsAsync(int count=10);
+        Task<int> GetTotalSongsLikesAsync();
     }
 }

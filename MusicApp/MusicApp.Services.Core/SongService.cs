@@ -345,5 +345,50 @@ namespace MusicApp.Services.Core
 
             return likes;
         }
+
+        public async Task<int> GetSongsCountAsync()
+        {
+            int songs=await dbContext
+                .Songs
+                .AsNoTracking()
+                .CountAsync();
+
+            return songs;
+        }
+
+        public async Task<IEnumerable<SongViewModel>> GetLatestSongsAsync(int count = 10)
+        {
+            IEnumerable<SongViewModel> songs = await dbContext
+                .Songs
+                .AsNoTracking()
+                .OrderByDescending(s => s.ReleaseDate)
+                .Select(s => new SongViewModel()
+                {
+                    Id = s.Id,
+                    Title = s.Title,
+                    Artist = s.Artist,
+                    Publisher = s.Publisher.UserName!,
+                    Genre = s.Genre.Name,
+                    GenreId = s.GenreId,
+                    ReleaseDate = s.ReleaseDate,
+                    PublisherId = s.PublisherId,
+                    LikesCount = s.Likes,
+                    CommentsCount = s.Comments.Count(c => !c.IsDeleted),
+                    ImageUrl = s.ImageUrl ?? "/images/no-image.jpg"
+                })
+                .Take(count)
+                .ToListAsync();
+
+            return songs;
+        }
+
+        public async Task<int> GetTotalSongsLikesAsync()
+        {
+            int likes = await dbContext
+                .Songs
+                .SumAsync(s => s.Likes);
+
+            return likes;
+        }
     }
 }

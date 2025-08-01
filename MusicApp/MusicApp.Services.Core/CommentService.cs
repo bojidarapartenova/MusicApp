@@ -112,5 +112,15 @@ namespace MusicApp.Services.Core
 
             return false;
         }
+
+        public async Task<int> GetCommentsCountAsync()
+        {
+            int comments = await dbContext
+                .Comments
+                .AsNoTracking()
+                .CountAsync();
+
+            return comments;
+        }
     }
 }

@@ -14,5 +14,6 @@ namespace MusicApp.Services.Core.Interfaces
         Task<IEnumerable<CommentViewModel>> GetCommentsAsync(Guid songId, string userId);
         Task<DeleteCommentViewModel?> GetCommentToDeleteAsync(string userId, Guid commentId);
         Task<bool> SoftDeleteCommentAsync(string userId, DeleteCommentViewModel viewModel);
+        Task<int> GetCommentsCountAsync();
     }
 }

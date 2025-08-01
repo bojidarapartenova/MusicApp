@@ -1,1 +1,97 @@
-﻿<div>hi</div>
+﻿@using MusicApp.Web.ViewModels.Song
+@model IEnumerable<SongViewModel>
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var latest = Model as IEnumerable<SongViewModel>; 
+}
+
+<style>
+    body{
+        background-color: #ccd0cf;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <h4>Dashboard</h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="card text-white h-100" style="background-color: #06141b;">
+                <div class="card-body py-5" style="font-size:18px;">Total users count</div>
+                <div class="card-footer d-flex">
+                    <h3>@ViewBag.TotalUsers</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card text-white h-100" style="background-color: #11212d;">
+                <div class="card-body py-5" style="font-size:18px;">Total songs count</div>
+                <div class="card-footer d-flex">
+                    <h3>@ViewBag.TotalSongs</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card text-white h-100" style="background-color: #253745;">
+                <div class="card-body py-5" style="font-size:18px;">Total comments count</div>
+                <div class="card-footer d-flex">
+                    <h3>@ViewBag.TotalComments</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card text-white h-100" style="background-color: #4a5c6a;">
+                <div class="card-body py-5" style="font-size:18px;">Total likes count</div>
+                <div class="card-footer d-flex">
+                    <h3>@ViewBag.TotalLikes</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-md-12 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <span><i class="bi bi-table me-2"></i></span> The latest 10
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Publisher name</th>
+                                <th>Artist name</th>
+                                <th>Title</th>
+                                <th>Genre</th>
+                                <th>Release Date</th>
+                                <th>Comments</th>
+                                <th>Likes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in latest)
+                            {
+                                <tr>
+                                    <td>@item.Publisher</td>
+                                    <td>@item.Artist</td>
+                                    <td>@item.Title</td>
+                                    <td>@item.Genre</td>
+                                    <td>@item.ReleaseDate.ToShortDateString()</td>
+                                    <td>@item.Comments.Count()</td>
+                                    <td>@item.LikesCount</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
