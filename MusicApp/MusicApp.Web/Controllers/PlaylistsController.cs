@@ -1,5 +1,6 @@
 ﻿using CinemaApp.Web.Controllers;
 using Microsoft.AspNetCore.Mvc;
+using MusicApp.Data.Models;
 using MusicApp.Services.Core;
 using MusicApp.Services.Core.Interfaces;
 using MusicApp.Web.ViewModels.Playlists;
@@ -18,13 +19,15 @@ namespace MusicApp.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page=1)
         {
-            var userId = GetUserId()!;
-           // await playlistsService.EnsureFavoritesPlaylistExistsAsync(userId);
+            const int pageSize = 9;
 
-            var playlists = await playlistsService
-                .GetUserPlaylistsAsync(GetUserId()!);
+            (IEnumerable<Playlist> playlists, int totalCount) = await playlistsService
+                .GetUserPlaylistsAsync(GetUserId()!, page, pageSize);
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 
             return View(playlists);
         }

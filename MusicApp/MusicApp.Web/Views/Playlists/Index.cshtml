@@ -39,3 +39,17 @@ else
         }
     </div>
 }
+
+@if (ViewBag.TotalPages > 1)
+{
+    <nav class="d-flex justify-content-center mt-4">
+        <ul class="pagination">
+            @for (int i = 1; i <= (int)ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { page = i})">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}

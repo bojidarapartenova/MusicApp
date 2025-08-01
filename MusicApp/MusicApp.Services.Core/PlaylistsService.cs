@@ -19,14 +19,24 @@ namespace MusicApp.Services.Core
             this.userManager = userManager;
         }
 
-        public async Task<ICollection<Playlist>> GetUserPlaylistsAsync(string userId)
+        public async Task<(IEnumerable<Playlist> Playlists, int totalCount)> GetUserPlaylistsAsync(string userId, int? page = null, int? pageSize = null)
         {
-            var playlists = await dbContext
+            IEnumerable<Playlist> playlists = await dbContext
                 .Playlists
                 .Where(p => p.UserId.ToLower() == userId.ToLower())
-                .ToArrayAsync();
+                .ToListAsync();
 
-            return playlists;
+            int totalCount = playlists.Count();
+
+            if(page.HasValue && pageSize.HasValue)
+            {
+                playlists=playlists
+                    .Skip((page.Value - 1) * pageSize.Value)
+                    .Take(pageSize.Value);
+            }
+
+
+            return (playlists, totalCount);
         }
 
         public async Task CreatePlaylistAsync(CreatePlaylistViewModel viewModel, string userId)

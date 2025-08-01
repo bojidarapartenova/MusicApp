@@ -13,7 +13,7 @@ namespace MusicApp.Services.Core.Interfaces
     {
         Task EnsureFavoritesPlaylistExistsAsync(string userId);
         Task<Playlist?> GetFavoritesPlaylistAsync(string userId);
-        Task<ICollection<Playlist>> GetUserPlaylistsAsync(string userId);
+        Task<(IEnumerable<Playlist> Playlists, int totalCount)> GetUserPlaylistsAsync(string userId, int? page=null, int? pageSize=null);
         Task CreatePlaylistAsync(CreatePlaylistViewModel viewModel, string userId);
         Task<DeletePlaylistViewModel?> GetPlaylistToDeleteAsync(string userId, string? playlistId);
         Task<bool> SoftDeletePlaylistAsync(string userId, DeletePlaylistViewModel viewModel);
