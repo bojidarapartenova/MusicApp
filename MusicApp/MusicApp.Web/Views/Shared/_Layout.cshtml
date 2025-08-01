@@ -1,25 +1,10 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using MusicApp.Data.Models
-@inject SignInManager<ApplicationUser> SignInManager
-
 @using System.Security.Claims
 @using MusicApp.Services.Core.Interfaces
+@inject SignInManager<ApplicationUser> SignInManager
 @inject INotificationsService NotificationService
 
-<style >
-    .notification-badge {
-        background-color: red;
-        color: white;
-        font-size: 0.75rem;
-        font-weight: bold;
-        padding: 2px 6px;
-        border-radius: 12px;
-        margin-left: 6px;
-        vertical-align: middle;
-    }
-</style>
-
-<!DOCTYPE html>
 @{
     string? userId = User?.FindFirstValue(ClaimTypes.NameIdentifier);
     int unreadCount = 0;
@@ -30,6 +15,7 @@
     }
 }
 
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -38,17 +24,29 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MusicApp.Web.styles.css" asp-append-version="true" />
+    <style>
+        .notification-badge {
+            background-color: red;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 12px;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+    </style>
 </head>
 <body>
-    <header style="background-color: #111">
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-#111 box-shadow mb-3">
-
+    <header style="background-color: #111;">
+        <nav class="navbar navbar-expand-sm navbar-dark box-shadow mb-3" style="background-color: #111;">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MusicApp.Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
@@ -60,18 +58,13 @@
                                 Songs
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="songsDropdown">
-                                <li>
-                                    <a class="dropdown-item" asp-controller="Song" asp-action="Index">All Songs</a>
-                                </li>
+                                <li><a class="dropdown-item" asp-controller="Song" asp-action="Index">All Songs</a></li>
                                 @if (SignInManager.IsSignedIn(User))
                                 {
-                                    <li>
-                                        <a class="dropdown-item" asp-controller="Song" asp-action="Add">Add</a>
-                                    </li>
+                                    <li><a class="dropdown-item" asp-controller="Song" asp-action="Add">Add</a></li>
                                 }
                             </ul>
                         </li>
-
 
                         @if (SignInManager.IsSignedIn(User))
                         {
@@ -87,9 +80,23 @@
                                     }
                                 </a>
                             </li>
-
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-area="" asp-controller="MyReleases" asp-action="Index">My Releases</a>
+                            </li>
+                        }
+
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-white" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Admin Panel
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Home" asp-action="Index">Dashboard</a></li>
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Users" asp-action="Index">Manage Users</a></li>
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Songs" asp-action="Index">Manage Songs</a></li>
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Comments" asp-action="Index">Manage Comments</a></li>
+                                </ul>
                             </li>
                         }
                     </ul>
@@ -99,17 +106,19 @@
             </div>
         </nav>
     </header>
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted" style="background-color: #111">
+    <footer class="border-top footer text-muted" style="background-color: #111;">
         <div class="container">
             &copy; 2025 - MusicApp.Web
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
