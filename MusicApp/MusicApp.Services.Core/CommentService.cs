@@ -118,6 +118,7 @@ namespace MusicApp.Services.Core
             int comments = await dbContext
                 .Comments
                 .AsNoTracking()
+                .Where(c=>c.IsDeleted==false)
                 .CountAsync();
 
             return comments;
