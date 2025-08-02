@@ -8,10 +8,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting.Internal;
 using MusicApp.Data.Data;
 using MusicApp.Data.Models;
-using MusicApp.Services.Core.Interfaces;
+using MusicApp.Services.Core.Admin.Interfaces;
 using MusicApp.Web.ViewModels.Admin.UserManagement;
 
-namespace MusicApp.Services.Core
+namespace MusicApp.Services.Core.Admin
 {
     public class UserService : IUserService
     {
@@ -35,42 +35,42 @@ namespace MusicApp.Services.Core
         {
             var query = dbContext.Users.AsQueryable();
 
-            if(!string.IsNullOrWhiteSpace(searchTerm))
+            if (!string.IsNullOrWhiteSpace(searchTerm))
             {
                 query = query
                     .Where(u => u.Email.Contains(searchTerm) || u.UserName.Contains(searchTerm));
             }
 
-            var usersList=await query.ToListAsync();
+            var usersList = await query.ToListAsync();
 
-            if(!string.IsNullOrEmpty(roleFilter))
+            if (!string.IsNullOrEmpty(roleFilter))
             {
-                var filteredUsers=new List<ApplicationUser>();
+                var filteredUsers = new List<ApplicationUser>();
 
                 foreach (var user in usersList)
                 {
                     var roles = await userManager.GetRolesAsync(user);
                     bool include = false;
 
-                    if(roleFilter.ToLower()=="admin")
+                    if (roleFilter.ToLower() == "admin")
                     {
-                        include=roles.Contains("Admin");
+                        include = roles.Contains("Admin");
                     }
-                    else if(roleFilter.ToLower()=="user")
+                    else if (roleFilter.ToLower() == "user")
                     {
                         include = !roles.Contains("Admin");
                     }
 
-                    if(include)
+                    if (include)
                     {
                         filteredUsers.Add(user);
                     }
                 }
-                usersList=filteredUsers;
+                usersList = filteredUsers;
             }
 
-            var viewModels=new List<UserManagementIndexViewModel>();
-            foreach(var user in usersList)
+            var viewModels = new List<UserManagementIndexViewModel>();
+            foreach (var user in usersList)
             {
                 var isAdmin = await userManager.IsInRoleAsync(user, "Admin");
 
@@ -80,7 +80,7 @@ namespace MusicApp.Services.Core
                     Email = user.Email,
                     UserName = user.UserName,
                     IsAdmin = isAdmin,
-                    IsActive = !user.LockoutEnabled || (user.LockoutEnd <= DateTimeOffset.Now)
+                    IsActive = !user.LockoutEnabled || user.LockoutEnd <= DateTimeOffset.Now
                 });
             }
 
@@ -89,13 +89,13 @@ namespace MusicApp.Services.Core
 
         public async Task MakeAdminAsync(string userId)
         {
-            ApplicationUser? user= await userManager.FindByIdAsync(userId);
+            ApplicationUser? user = await userManager.FindByIdAsync(userId);
 
-            if(user!=null)
+            if (user != null)
             {
                 bool isInRole = await userManager.IsInRoleAsync(user, "Admin");
 
-                if(!isInRole)
+                if (!isInRole)
                 {
                     await userManager.AddToRoleAsync(user, "Admin");
                 }
@@ -113,11 +113,11 @@ namespace MusicApp.Services.Core
 
         public async Task ToggleActivationAsync(string userId)
         {
-            var user=await userManager.FindByIdAsync(userId);
+            var user = await userManager.FindByIdAsync(userId);
 
-            if (user!=null)
+            if (user != null)
             {
-                if(user.LockoutEnabled && user.LockoutEnd > DateTimeOffset.Now)
+                if (user.LockoutEnabled && user.LockoutEnd > DateTimeOffset.Now)
                 {
                     user.LockoutEnd = DateTimeOffset.Now;
                     user.LockoutEnabled = false;

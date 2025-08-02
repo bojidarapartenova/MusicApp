@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MusicApp.Web.ViewModels.Admin.UserManagement;
 
-namespace MusicApp.Services.Core.Interfaces
+namespace MusicApp.Services.Core.Admin.Interfaces
 {
     public interface IUserService
     {

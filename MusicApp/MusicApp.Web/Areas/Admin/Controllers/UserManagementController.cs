@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MusicApp.Data.Models;
 using MusicApp.Services.Core;
-using MusicApp.Services.Core.Interfaces;
+using MusicApp.Services.Core.Admin.Interfaces;
 using MusicApp.Web.ViewModels.Admin.UserManagement;
 
 namespace MusicApp.Web.Areas.Admin.Controllers

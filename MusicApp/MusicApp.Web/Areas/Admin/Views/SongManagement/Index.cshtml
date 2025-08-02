@@ -1,0 +1,78 @@
+﻿@using MusicApp.Web.ViewModels.Admin.SongManagement
+@model IEnumerable<SongManagementViewModel>
+
+@{
+    ViewData["Title"] = "Song Management";
+    var searchTerm = Context.Request.Query["searchTerm"].ToString();
+}
+
+<style>
+    body {
+        background-color: #ccd0cf;
+    }
+</style>
+
+<h2>Song Management</h2>
+
+<form asp-controller="SongManagement" asp-action="Index" method="get" class="mb-4">
+    <input type="text" name="searchTerm" class="form-control w-50" placeholder="⌕ Search..." value="@searchTerm" />
+
+</form>
+
+@if (Model != null && Model.Any())
+{
+    <div class="row">
+        <div class="col-md-12 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Genre</th>
+                                    <th>Publisher</th>
+                                    <th>Release Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var song in Model)
+                                {
+                                    <tr>
+                                        <td>@song.Title</td>
+                                        <td>@song.Genre</td>
+                                        <td>@song.Publisher</td>
+                                        <td>@song.ReleaseDate</td>
+                                        <td>
+                                            @if (!song.IsDeleted)
+                                            {
+                                                <form asp-area="Admin" asp-controller="SongManagement" asp-action="Delete" method="post" style="display:inline;">
+                                                    <input type="hidden" name="id" value="@song.Id" />
+                                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                                </form>
+
+                                            }
+                                            else
+                                            {
+                                                <form asp-area="Admin" asp-controller="SongManagement" asp-action="Restore" method="post" style="display:inline;">
+                                                    <input type="hidden" name="id" value="@song.Id" />
+                                                    <button type="submit" class="btn btn-success btn-sm">Restore</button>
+                                                </form>
+
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <p>No songs found.</p>
+}
