@@ -1,0 +1,66 @@
+﻿@using MusicApp.Web.ViewModels.Admin.CommentManagement
+@model IEnumerable<CommentManagementViewModel>
+
+@{
+    ViewData["Title"] = "Comment Management";
+    var searchTerm = Context.Request.Query["searchTerm"].ToString();
+}
+
+<style>
+    body {
+        background-color: #ccd0cf;
+    }
+</style>
+
+<h2>Comment Management</h2>
+
+@if (Model != null && Model.Any())
+{
+    <div class="row">
+        <div class="col-md-12 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Text</th>
+                                    <th>User</th>
+                                    <th>Created On</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var comment in Model)
+                                {
+                                    <tr>
+                                        <td>@comment.Text</td>
+                                        <td>@comment.UserName</td>
+                                        <td>@comment.CreatedOn.ToString("yyyy-MM-dd HH:mm")</td>
+                                        <td>
+                                            @if (!comment.IsDeleted)
+                                            {
+                                                <form asp-area="Admin" asp-controller="CommentManagement" asp-action="Delete" method="post" style="display:inline;">
+                                                    <input type="hidden" name="id" value="@comment.Id" />
+                                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Deleted</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <p>No comments found.</p>
+}
