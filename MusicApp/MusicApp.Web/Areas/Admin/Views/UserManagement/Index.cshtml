@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Manage Users";
-    Layout = "~/Views/Shared/_Layout.cshtml"; // add layout if you want like the second example
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <style>
@@ -18,6 +18,15 @@
         </div>
     </div>
 
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <form method="get" asp-action="Index" class="mb-3 d-flex gap-2">
+                <input type="text" name="searchTerm" class="form-control w-25" placeholder="Search by email or username" value="@ViewBag.SearchTerm" />
+            </form>
+
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-md-12 mb-3">
             <div class="card">
@@ -30,6 +39,7 @@
                             <thead class="table-dark">
                                 <tr>
                                     <th>Email</th>
+                                    <th>Username</th>
                                     <th>Role</th>
                                     <th>Status</th>
                                     <th>Actions</th>
@@ -40,32 +50,41 @@
                                 {
                                     <tr>
                                         <td>@user.Email</td>
+                                        <td>@user.UserName</td>
                                         <td>@(user.IsAdmin ? "Admin" : "User")</td>
                                         <td>
-                                           @*  @if (user.IsDeleted)
+                                            @if (user.IsActive)
                                             {
-                                                <span class="badge bg-danger">Banned</span>
+                                                <span class="badge bg-success">Active</span>
                                             }
                                             else
                                             {
-                                                <span class="badge bg-success">Active</span>
-                                            } *@
+                                                <span class="badge bg-secondary">Inactive</span>
+                                            }
                                         </td>
                                         <td>
-                                            <form asp-action="ToggleAdmin" method="post" style="display:inline;">
-                                                <input type="hidden" name="userId" value="@user.Id" />
-                                                <button type="submit" class="btn btn-sm @(user.IsAdmin ? "btn-warning" : "btn-success")">
-                                                    @(user.IsAdmin ? "Remove Admin" : "Make Admin")
-                                                </button>
-                                            </form>
-@* 
-                                            <form asp-action="ToggleBan" method="post" style="display:inline;">
-                                                <input type="hidden" name="userId" value="@user.Id" />
-                                                <button type="submit" class="btn btn-sm @(user.IsDeleted ? "btn-success" : "btn-danger") ms-2">
-                                                    @(user.IsDeleted ? "Unban" : "Ban")
-                                                </button>
-                                            </form> *@
+                                            <div class="d-flex gap-2">
+                                                <form asp-action="ToggleAdmin" method="post" class="m-0 p-0">
+                                                    <input type="hidden" name="userId" value="@user.Id" />
+                                                    <button type="submit" class="btn btn-sm @(user.IsAdmin ? "btn-warning" : "btn-success")">
+                                                        @(user.IsAdmin ? "Remove Admin" : "Make Admin")
+                                                    </button>
+                                                </form>
+
+                                                <form asp-action="ToggleActivation" method="post" class="m-0 p-0">
+                                                    <input type="hidden" name="userId" value="@user.Id" />
+                                                    <button type="submit" class="btn btn-sm @(user.IsActive ? "btn-danger" : "btn-info")">
+                                                        @(user.IsActive ? "Deactivate" : "Activate")
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </td>
+                                    </tr>
+                                }
+                                @if (!Model.Any())
+                                {
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">No users found.</td>
                                     </tr>
                                 }
                             </tbody>

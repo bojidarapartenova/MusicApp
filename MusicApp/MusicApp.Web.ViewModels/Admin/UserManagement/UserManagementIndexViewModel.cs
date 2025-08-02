@@ -13,6 +13,7 @@ namespace MusicApp.Web.ViewModels.Admin.UserManagement
         public string Email { get; set; } = null!;
         public string UserName { get; set; } = null!;
         public bool IsAdmin { get; set; }
+        public bool IsActive { get; set; } = true;
 
     }
 }

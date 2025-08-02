@@ -10,8 +10,9 @@ namespace MusicApp.Services.Core.Interfaces
     public interface IUserService
     {
         Task<int> GetUsersCountAsync();
-        Task<IEnumerable<UserManagementIndexViewModel>> GetAllUsersAsync();
+        Task<IEnumerable<UserManagementIndexViewModel>> GetAllUsersAsync(string? searchTerm, string? roleFilter);
         Task MakeAdminAsync(string userId);
         Task RemoveAdminAsync(string userId);
+        Task ToggleActivationAsync(string userId);
     }
 }

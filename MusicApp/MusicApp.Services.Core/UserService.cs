@@ -31,26 +31,60 @@ namespace MusicApp.Services.Core
 
             return users;
         }
-        public async Task<IEnumerable<UserManagementIndexViewModel>> GetAllUsersAsync()
+        public async Task<IEnumerable<UserManagementIndexViewModel>> GetAllUsersAsync(string? searchTerm, string? roleFilter)
         {
-            var users = userManager.Users.ToList();
-            var userViewModels = new List<UserManagementIndexViewModel>();
+            var query = dbContext.Users.AsQueryable();
 
-            foreach (var user in users)
+            if(!string.IsNullOrWhiteSpace(searchTerm))
             {
-                var roles = await userManager.GetRolesAsync(user);
-                bool isAdmin = roles.Contains("Admin");
+                query = query
+                    .Where(u => u.Email.Contains(searchTerm) || u.UserName.Contains(searchTerm));
+            }
 
-                userViewModels.Add(new UserManagementIndexViewModel()
+            var usersList=await query.ToListAsync();
+
+            if(!string.IsNullOrEmpty(roleFilter))
+            {
+                var filteredUsers=new List<ApplicationUser>();
+
+                foreach (var user in usersList)
+                {
+                    var roles = await userManager.GetRolesAsync(user);
+                    bool include = false;
+
+                    if(roleFilter.ToLower()=="admin")
+                    {
+                        include=roles.Contains("Admin");
+                    }
+                    else if(roleFilter.ToLower()=="user")
+                    {
+                        include = !roles.Contains("Admin");
+                    }
+
+                    if(include)
+                    {
+                        filteredUsers.Add(user);
+                    }
+                }
+                usersList=filteredUsers;
+            }
+
+            var viewModels=new List<UserManagementIndexViewModel>();
+            foreach(var user in usersList)
+            {
+                var isAdmin = await userManager.IsInRoleAsync(user, "Admin");
+
+                viewModels.Add(new UserManagementIndexViewModel()
                 {
                     Id = user.Id,
-                    Email = user.Email ?? string.Empty,
-                    UserName = user.UserName ?? string.Empty,
-                    IsAdmin = isAdmin
+                    Email = user.Email,
+                    UserName = user.UserName,
+                    IsAdmin = isAdmin,
+                    IsActive = !user.LockoutEnabled || (user.LockoutEnd <= DateTimeOffset.Now)
                 });
             }
 
-            return userViewModels;
+            return viewModels;
         }
 
         public async Task MakeAdminAsync(string userId)
@@ -77,26 +111,24 @@ namespace MusicApp.Services.Core
             }
         }
 
-        //public async Task SoftDeleteAsync(string userId)
-        //{
-        //    ApplicationUser? user=await userManager.FindByEmailAsync(userId);
+        public async Task ToggleActivationAsync(string userId)
+        {
+            var user=await userManager.FindByIdAsync(userId);
 
-        //    if(user!=null)
-        //    {
-        //        user.IsDeleted = true;
-        //        await userManager.UpdateAsync(user);
-        //    }
-        //}
-
-        //public async Task RestoreUserAsync(string userId)
-        //{
-        //    ApplicationUser? user = await userManager.FindByEmailAsync(userId);
-
-        //    if (user != null)
-        //    {
-        //        user.IsDeleted = false;
-        //        await userManager.UpdateAsync(user);
-        //    }
-        //}
+            if (user!=null)
+            {
+                if(user.LockoutEnabled && user.LockoutEnd > DateTimeOffset.Now)
+                {
+                    user.LockoutEnd = DateTimeOffset.Now;
+                    user.LockoutEnabled = false;
+                }
+                else
+                {
+                    user.LockoutEnd = DateTimeOffset.MaxValue;
+                    user.LockoutEnabled = true;
+                }
+                await userManager.UpdateAsync(user);
+            }
+        }
     }
 }
