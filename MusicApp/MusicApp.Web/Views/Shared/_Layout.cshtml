@@ -58,10 +58,10 @@
                                 Songs
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="songsDropdown">
-                                <li><a class="dropdown-item" asp-controller="Song" asp-action="Index">All Songs</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Song" asp-action="Index">All Songs</a></li>
                                 @if (SignInManager.IsSignedIn(User))
                                 {
-                                    <li><a class="dropdown-item" asp-controller="Song" asp-action="Add">Add</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Song" asp-action="Add">Add</a></li>
                                 }
                             </ul>
                         </li>

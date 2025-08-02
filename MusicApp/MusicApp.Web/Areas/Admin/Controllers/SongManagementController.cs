@@ -23,10 +23,21 @@ namespace MusicApp.Web.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var result = await songManagementService.SoftDeleteAsync(id);
-            if (!result) return NotFound();
+            try
+            {
+                if(!ModelState.IsValid)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
 
-            return RedirectToAction(nameof(Index));
+                await songManagementService.SoftDeleteAsync(id);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         [HttpPost]
@@ -34,21 +45,19 @@ namespace MusicApp.Web.Areas.Admin.Controllers
         {
             try
             {
-                if(!ModelState.IsValid)
+                if (!ModelState.IsValid)
                 {
                     return RedirectToAction(nameof(Index));
                 }
-                var result = await songManagementService.RestoreAsync(id);
-                if (!result) return NotFound();
 
+                await songManagementService.RestoreAsync(id);
                 return RedirectToAction(nameof(Index));
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(e.Message);
                 return RedirectToAction(nameof(Index));
             }
-            
         }
 
     }

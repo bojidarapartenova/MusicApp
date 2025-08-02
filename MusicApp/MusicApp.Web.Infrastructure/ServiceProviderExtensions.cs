@@ -43,7 +43,10 @@
 
             foreach(var song in songs)
             {
-                bool exists= await dbContext.Songs.AnyAsync(s=>s.Title == song.Title);
+                bool exists= await dbContext
+                    .Songs
+                    .IgnoreQueryFilters()
+                    .AnyAsync(s=>s.Title == song.Title);
 
                 if (!exists)
                 {

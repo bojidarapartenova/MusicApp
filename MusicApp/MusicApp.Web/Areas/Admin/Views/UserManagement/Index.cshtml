@@ -38,8 +38,7 @@
                                     <th>Email</th>
                                     <th>Username</th>
                                     <th>Role</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
+                                    <th colspan="2">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -50,16 +49,6 @@
                                         <td>@user.UserName</td>
                                         <td>@(user.IsAdmin ? "Admin" : "User")</td>
                                         <td>
-                                            @if (user.IsActive)
-                                            {
-                                                <span class="badge bg-success">Active</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge bg-secondary">Inactive</span>
-                                            }
-                                        </td>
-                                        <td>
                                             <div class="d-flex gap-2">
                                                 <form asp-action="ToggleAdmin" method="post" class="m-0 p-0">
                                                     <input type="hidden" name="userId" value="@user.Id" />
@@ -67,7 +56,10 @@
                                                         @(user.IsAdmin ? "Remove Admin" : "Make Admin")
                                                     </button>
                                                 </form>
-
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2">
                                                 <form asp-action="ToggleActivation" method="post" class="m-0 p-0">
                                                     <input type="hidden" name="userId" value="@user.Id" />
                                                     <button type="submit" class="btn btn-sm @(user.IsActive ? "btn-danger" : "btn-info")">

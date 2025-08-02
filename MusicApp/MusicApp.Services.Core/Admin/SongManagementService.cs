@@ -45,39 +45,30 @@ namespace MusicApp.Services.Core.Admin
             return songs;
         }
 
-        public async Task<bool> SoftDeleteAsync(Guid id)
+        public async Task SoftDeleteAsync(Guid id)
         {
-            bool result = false;
-
             Song? song = await dbContext
                 .Songs
-                .FirstOrDefaultAsync(s => s.Id == id);
+                .FirstAsync(s => s.Id == id);
 
-            if(song!=null && !song.IsDeleted)
+            if(song != null)
             {
                 song.IsDeleted = true;
                 await dbContext.SaveChangesAsync();
-                result = true;
             }
-
-            return result;
         }
-        public async Task<bool> RestoreAsync(Guid id)
+        public async Task RestoreAsync(Guid id)
         {
-            bool result = false;
-
-            Song? song = await dbContext
+            Song? song=await dbContext
                 .Songs
-                .FirstOrDefaultAsync(s => s.Id == id);
+                .IgnoreQueryFilters()
+                .FirstAsync (s => s.Id == id);
 
-            if (song != null && song.IsDeleted)
+            if(song != null)
             {
                 song.IsDeleted = false;
                 await dbContext.SaveChangesAsync();
-                result = true;
             }
-
-            return result;
         }
     }
 }
