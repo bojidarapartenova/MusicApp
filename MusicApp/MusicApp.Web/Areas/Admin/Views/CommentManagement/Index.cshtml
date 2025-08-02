@@ -24,8 +24,8 @@
                         <table class="table table-striped">
                             <thead>
                                 <tr>
-                                    <th>Text</th>
                                     <th>User</th>
+                                    <th>Text</th>
                                     <th>Created On</th>
                                     <th>Actions</th>
                                 </tr>
@@ -34,8 +34,8 @@
                                 @foreach (var comment in Model)
                                 {
                                     <tr>
-                                        <td>@comment.Text</td>
                                         <td>@comment.UserName</td>
+                                        <td>"@comment.Text"</td>
                                         <td>@comment.CreatedOn.ToString("yyyy-MM-dd HH:mm")</td>
                                         <td>
                                             @if (!comment.IsDeleted)

@@ -18,5 +18,25 @@ namespace MusicApp.Web.Areas.Admin.Controllers
                 .GetAllCommentsAsync();
             return View(comments);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            try
+            {
+                if(!ModelState.IsValid)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+
+                await commentManagementService.DeleteCommentAsync(id);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return RedirectToAction(nameof(Index));
+            }
+        }
     }
 }

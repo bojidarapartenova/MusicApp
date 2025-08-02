@@ -10,5 +10,6 @@ namespace MusicApp.Services.Core.Admin.Interfaces
     public interface ICommentManagementService
     {
         Task<IEnumerable<CommentManagementViewModel>> GetAllCommentsAsync();
+        Task DeleteCommentAsync(Guid commentId);
     }
 }

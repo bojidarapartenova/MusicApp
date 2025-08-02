@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using MusicApp.Data.Data;
 using MusicApp.Services.Core.Admin.Interfaces;
 using MusicApp.Web.ViewModels.Admin.CommentManagement;
+using MusicApp.Data.Models;
 
 namespace MusicApp.Services.Core.Admin
 {
@@ -24,6 +25,7 @@ namespace MusicApp.Services.Core.Admin
             IEnumerable<CommentManagementViewModel> comments = await dbContext
                 .Comments
                 .AsNoTracking()
+                .OrderByDescending(c=>c.CreatedOn)
                 .Select(c => new CommentManagementViewModel()
                 {
                     Id = c.Id,
@@ -35,6 +37,19 @@ namespace MusicApp.Services.Core.Admin
                 .ToListAsync();
 
             return comments;
+        }
+
+        public async Task DeleteCommentAsync(Guid commentId)
+        {
+            Comment? comment = await dbContext
+                .Comments
+                .FirstAsync(c => c.Id == commentId);
+
+            if(comment!=null)
+            {
+                comment.IsDeleted = true;
+                await dbContext.SaveChangesAsync();
+            }
         }
     }
 }
