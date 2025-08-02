@@ -119,6 +119,11 @@ namespace MusicApp.Web.Areas.Identity.Pages.Account
 
                 if (user != null)
                 {
+                    if(user.LockoutEnd > DateTimeOffset.Now)
+                    {
+                        return Redirect("/Home/Deactivated");
+                    }
+
                     var result = await _signInManager.PasswordSignInAsync(
                         user.UserName,  // use actual UserName here
                         Input.Password,

@@ -38,6 +38,12 @@ namespace MusicApp.Web.Controllers
             return View(songs);
         }
 
+        [AllowAnonymous]
+        public IActionResult Deactivated()
+        {
+            return View();
+        }
+
         public IActionResult Privacy()
         {
             return View();
