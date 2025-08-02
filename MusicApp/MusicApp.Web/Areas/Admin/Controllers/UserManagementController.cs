@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +27,7 @@ namespace MusicApp.Web.Areas.Admin.Controllers
 
             ViewBag.SearchTerm = searchTerm;
             ViewBag.RoleFilter = roleFilter;
+            ViewBag.CurrentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             return View(users);
         }
