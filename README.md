@@ -12,6 +12,4 @@ MusicApp is a web app that allows users to upload and share their own versions o
 - Admins can Activate/Deactivate users and make other admins.
 
 # Test:
-test@gmail.com - 123456
-
 admin@example.com - Admin123!
