@@ -15,6 +15,5 @@ namespace MusicApp.Data.Models
         public ICollection<Song> UploadedSongs { get; set; }=new HashSet<Song>();
         public ICollection<Playlist> Playlists { get; set; }=new HashSet<Playlist>();
         public ICollection<Notification> Notifications { get; set; }=new HashSet<Notification>();
-
     }
 }

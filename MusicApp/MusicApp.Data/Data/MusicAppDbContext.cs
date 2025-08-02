@@ -92,6 +92,10 @@
                 .HasForeignKey(u => u.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            //builder.Entity<ApplicationUser>()
+            //    .HasQueryFilter(au=>au.IsDeleted == false);
+
+
             builder.Entity<Genre>()
                 .HasData(
                 new Genre { Id = 1, Name = "Pop" },
