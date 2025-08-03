@@ -46,6 +46,13 @@ namespace MusicApp.Tests
                 notificationServiceMock.Object);
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            dbContext.Database.EnsureDeleted();
+            dbContext.Dispose();
+        }
+
         [Test]
         public async Task GetAllSongsAsync_ReturnsAllSongsSortedByReleaseDate()
         {
