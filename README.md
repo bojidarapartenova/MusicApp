@@ -13,3 +13,5 @@ MusicApp is a web app that allows users to upload and share their own versions o
 
 # Test:
 admin@example.com - Admin123!
+
+user@example.com - 123456
