@@ -130,5 +130,284 @@ namespace MusicApp.Tests.Services
             Assert.IsNotNull(result);
             Assert.IsTrue(result.IsDefault);
         }
+
+        [Test]
+        public async Task RemoveSongAsync_RemovesExistingSong()
+        {
+            var song = new Song
+            {
+                Id = Guid.NewGuid(),
+                Title = "Test Song",
+                Artist = "Test Artist",           
+                AudioUrl = "/audio/test.mp3",     
+                PublisherId = "publisher1",      
+                ImageUrl = null                   
+            };
+
+            var playlist = await dbContext.Playlists.FirstAsync();
+            playlist.PlaylistsSongs.Add(new PlaylistSong { SongId = song.Id, PlaylistId = playlist.Id });
+            dbContext.Songs.Add(song);
+            await dbContext.SaveChangesAsync();
+
+            var result = await playlistsService.RemoveSongAsync(playlist.Id, song.Id);
+
+            Assert.IsTrue(result);
+            Assert.IsFalse(await dbContext.PlaylistsSongs.AnyAsync(ps => ps.SongId == song.Id));
+        }
+
+        [Test]
+        public async Task EditPlaylistAsync_UpdatesTitleAndImage()
+        {
+            var playlist = await dbContext.Playlists.FirstAsync();
+
+            var input = new EditPlaylistInputModel
+            {
+                Id = playlist.Id,
+                Title = "Updated Title",
+                ImageUrl = "new.jpg"
+            };
+
+            var result = await playlistsService.EditPlaylistAsync(input);
+
+            Assert.IsTrue(result);
+            var updated = await dbContext.Playlists.FindAsync(playlist.Id);
+            Assert.AreEqual("Updated Title", updated.Title);
+            Assert.AreEqual("new.jpg", updated.ImageUrl);
+        }
+
+        [Test]
+        public async Task GetPlaylistDetailsAsync_ReturnsDetails()
+        {
+            var song = new Song
+            {
+                Id = Guid.NewGuid(),
+                Title = "Test Song",
+                Artist = "Test Artist",
+                AudioUrl = "/audio/test.mp3",
+                PublisherId = "publisher1",
+                ImageUrl = null
+            };
+
+            var playlist = await dbContext.Playlists.FirstAsync();
+            playlist.PlaylistsSongs.Add(new PlaylistSong { Song = song, PlaylistId = playlist.Id });
+            dbContext.Songs.Add(song);
+            await dbContext.SaveChangesAsync();
+
+            var result = await playlistsService.GetPlaylistDetailsAsync(playlist.Id);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(playlist.Title, result.Title);
+            Assert.AreEqual(1, result.Songs.Count);
+        }
+
+        [Test]
+        public async Task AddSongToFavoritesAsync_AddsSong_WhenNotExists()
+        {
+            // Arrange
+            var songId = Guid.NewGuid();
+
+            // Add default favorites playlist
+            var favorites = new Playlist
+            {
+                Id = Guid.NewGuid(),
+                Title = "Favorites",
+                UserId = testUser.Id,
+                IsDefault = true,
+                PlaylistsSongs = new List<PlaylistSong>()
+            };
+            dbContext.Playlists.Add(favorites);
+            await dbContext.SaveChangesAsync();
+
+            // Act
+            await playlistsService.AddSongToFavoritesAsync(testUser.Id, songId);
+
+            // Assert
+            var updatedFavorites = await dbContext.Playlists
+                .Include(p => p.PlaylistsSongs)
+                .FirstAsync(p => p.UserId == testUser.Id && p.IsDefault);
+
+            Assert.IsTrue(updatedFavorites.PlaylistsSongs.Any(ps => ps.SongId == songId));
+        }
+
+        [Test]
+        public async Task AddSongToFavoritesAsync_DoesNotAddDuplicateSong()
+        {
+            var songId = Guid.NewGuid();
+
+            var favorites = new Playlist
+            {
+                Id = Guid.NewGuid(),
+                Title = "Favorites",
+                UserId = testUser.Id,
+                IsDefault = true,
+                PlaylistsSongs = new List<PlaylistSong>()
+            {
+                new PlaylistSong { SongId = songId }
+            }
+            };
+            dbContext.Playlists.Add(favorites);
+            await dbContext.SaveChangesAsync();
+
+            await playlistsService.AddSongToFavoritesAsync(testUser.Id, songId);
+
+            var updatedFavorites = await dbContext.Playlists
+                .Include(p => p.PlaylistsSongs)
+                .FirstAsync(p => p.UserId == testUser.Id && p.IsDefault);
+
+            int count = updatedFavorites.PlaylistsSongs.Count(ps => ps.SongId == songId);
+            Assert.AreEqual(1, count); // No duplicate added
+        }
+
+        [Test]
+        public async Task RemoveSongFromFavoritesAsync_RemovesSong_WhenExists()
+        {
+            var songId = Guid.NewGuid();
+
+            var favorites = new Playlist
+            {
+                Id = Guid.NewGuid(),
+                Title = "Favorites",
+                UserId = testUser.Id,
+                IsDefault = true,
+                PlaylistsSongs = new List<PlaylistSong>()
+            {
+                new PlaylistSong { PlaylistId = Guid.NewGuid(), SongId = songId }
+            }
+            };
+            dbContext.Playlists.Add(favorites);
+            await dbContext.SaveChangesAsync();
+
+            await playlistsService.RemoveSongFromFavoritesAsync(testUser.Id, songId);
+
+            var updatedFavorites = await dbContext.Playlists
+                .Include(p => p.PlaylistsSongs)
+                .FirstAsync(p => p.UserId == testUser.Id && p.IsDefault);
+
+            Assert.IsFalse(updatedFavorites.PlaylistsSongs.Any(ps => ps.SongId == songId));
+        }
+
+        [Test]
+        public async Task RemoveSongFromFavoritesAsync_DoesNothing_WhenSongNotExists()
+        {
+            var songId = Guid.NewGuid();
+
+            var favorites = new Playlist
+            {
+                Id = Guid.NewGuid(),
+                Title = "Favorites",
+                UserId = testUser.Id,
+                IsDefault = true,
+                PlaylistsSongs = new List<PlaylistSong>()
+            };
+            dbContext.Playlists.Add(favorites);
+            await dbContext.SaveChangesAsync();
+
+            // No exception should be thrown, and playlist remains unchanged
+            await playlistsService.RemoveSongFromFavoritesAsync(testUser.Id, songId);
+
+            var updatedFavorites = await dbContext.Playlists
+                .Include(p => p.PlaylistsSongs)
+                .FirstAsync(p => p.UserId == testUser.Id && p.IsDefault);
+
+            Assert.IsEmpty(updatedFavorites.PlaylistsSongs);
+        }
+
+        [Test]
+        public async Task IsSongFavoritesAsync_ReturnsTrue_WhenSongIsInFavorites()
+        {
+            var songId = Guid.NewGuid();
+
+            var favorites = new Playlist
+            {
+                Id = Guid.NewGuid(),
+                Title = "Favorites",
+                UserId = testUser.Id,
+                IsDefault = true,
+                PlaylistsSongs = new List<PlaylistSong>()
+            {
+                new PlaylistSong { SongId = songId }
+            }
+            };
+            dbContext.Playlists.Add(favorites);
+            await dbContext.SaveChangesAsync();
+
+            bool isFavorite = await playlistsService.IsSongFavoritesAsync(testUser.Id, songId);
+
+            Assert.IsTrue(isFavorite);
+        }
+
+        [Test]
+        public async Task IsSongFavoritesAsync_ReturnsFalse_WhenSongIsNotInFavorites()
+        {
+            var songId = Guid.NewGuid();
+
+            var favorites = new Playlist
+            {
+                Id = Guid.NewGuid(),
+                Title = "Favorites",
+                UserId = testUser.Id,
+                IsDefault = true,
+                PlaylistsSongs = new List<PlaylistSong>()
+            };
+            dbContext.Playlists.Add(favorites);
+            await dbContext.SaveChangesAsync();
+
+            bool isFavorite = await playlistsService.IsSongFavoritesAsync(testUser.Id, songId);
+
+            Assert.IsFalse(isFavorite);
+        }
+
+        [Test]
+        public async Task AddSongsToPlaylistAsync_AddsOnlyNewSongs()
+        {
+            var playlist = await dbContext.Playlists.FirstAsync();
+
+            var existingSongId = Guid.NewGuid();
+            var newSongId = Guid.NewGuid();
+
+            // Setup existing song in playlist
+            playlist.PlaylistsSongs.Add(new PlaylistSong { PlaylistId = playlist.Id, SongId = existingSongId });
+            await dbContext.SaveChangesAsync();
+
+            var songsToAdd = new List<Guid> { existingSongId, newSongId };
+
+            await playlistsService.AddSongsToPlaylistAsync(playlist.Id, songsToAdd);
+
+            var updatedPlaylist = await dbContext.Playlists
+                .Include(p => p.PlaylistsSongs)
+                .FirstAsync(p => p.Id == playlist.Id);
+
+            Assert.IsTrue(updatedPlaylist.PlaylistsSongs.Any(ps => ps.SongId == newSongId));
+            // existing song should not be duplicated
+            int count = updatedPlaylist.PlaylistsSongs.Count(ps => ps.SongId == existingSongId);
+            Assert.AreEqual(1, count);
+        }
+
+        [Test]
+        public async Task GetPlaylistToEditAsync_ReturnsEditModel_WhenPlaylistExists()
+        {
+            var playlist = await dbContext.Playlists.FirstAsync();
+
+            var result = await playlistsService.GetPlaylistToEditAsync(testUser.Id, playlist.Id.ToString());
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(playlist.Title, result.Title);
+            Assert.AreEqual(playlist.ImageUrl, result.ImageUrl);
+        }
+
+        [Test]
+        public async Task GetPlaylistToEditAsync_ReturnsNull_WhenInvalidGuid()
+        {
+            var result = await playlistsService.GetPlaylistToEditAsync(testUser.Id, "invalid-guid");
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public async Task GetPlaylistToEditAsync_ReturnsNull_WhenPlaylistNotFound()
+        {
+            var unknownId = Guid.NewGuid().ToString();
+            var result = await playlistsService.GetPlaylistToEditAsync(testUser.Id, unknownId);
+            Assert.IsNull(result);
+        }
     }
 }
