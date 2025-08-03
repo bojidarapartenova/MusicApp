@@ -229,7 +229,7 @@ namespace MusicApp.Services.Core
                 {
                     songToDelete = new DeleteSongViewModel()
                     {
-                        Id = song.Id,
+                        Id = song!.Id,
                         Title = song.Title,
                         PublisherId=song.PublisherId,
                         Publisher = song.Publisher.UserName!
