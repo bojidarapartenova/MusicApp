@@ -36,9 +36,38 @@ namespace MusicApp.Tests.Services
 
             playlistsService = new PlaylistsService(dbContext, userManagerMock.Object);
 
+            // Add test user
             testUser = new ApplicationUser { Id = "user1", UserName = "TestUser" };
-            dbContext.Users.Add(testUser);
+            await dbContext.Users.AddAsync(testUser);
 
+            // Add genre (required for songs)
+            var genre = new Genre { Id = 1, Name = "Pop" };
+            await dbContext.Genres.AddAsync(genre);
+
+            // Add songs
+            var song1 = new Song
+            {
+                Id = Guid.NewGuid(),
+                Title = "Song 1",
+                Artist = "Artist 1",
+                AudioUrl = "url1",
+                PublisherId = testUser.Id,
+                GenreId = genre.Id
+            };
+
+            var song2 = new Song
+            {
+                Id = Guid.NewGuid(),
+                Title = "Song 2",
+                Artist = "Artist 2",
+                AudioUrl = "url2",
+                PublisherId = testUser.Id,
+                GenreId = genre.Id
+            };
+
+            await dbContext.Songs.AddRangeAsync(song1, song2);
+
+            // Add playlist
             var playlist = new Playlist
             {
                 Id = Guid.NewGuid(),
@@ -49,8 +78,12 @@ namespace MusicApp.Tests.Services
                 ImageUrl = "/images/sample.jpg",
                 PlaylistsSongs = new List<PlaylistSong>()
             };
+            await dbContext.Playlists.AddAsync(playlist);
 
-            dbContext.Playlists.Add(playlist);
+            // Link songs to playlist via PlaylistSong
+            playlist.PlaylistsSongs.Add(new PlaylistSong { PlaylistId = playlist.Id, SongId = song1.Id });
+            playlist.PlaylistsSongs.Add(new PlaylistSong { PlaylistId = playlist.Id, SongId = song2.Id });
+
             await dbContext.SaveChangesAsync();
         }
 
@@ -176,29 +209,72 @@ namespace MusicApp.Tests.Services
         }
 
         [Test]
-        public async Task GetPlaylistDetailsAsync_ReturnsDetails()
+        public async Task GetPlaylistDetailsAsync_ReturnsCorrectViewModel_WhenPlaylistExists()
         {
-            var song = new Song
-            {
-                Id = Guid.NewGuid(),
-                Title = "Test Song",
-                Artist = "Test Artist",
-                AudioUrl = "/audio/test.mp3",
-                PublisherId = "publisher1",
-                ImageUrl = null
-            };
+            // Arrange
+            var playlist = await dbContext.Playlists
+                .Include(p => p.PlaylistsSongs)
+                .FirstOrDefaultAsync();
 
-            var playlist = await dbContext.Playlists.FirstAsync();
-            playlist.PlaylistsSongs.Add(new PlaylistSong { Song = song, PlaylistId = playlist.Id });
-            dbContext.Songs.Add(song);
-            await dbContext.SaveChangesAsync();
+            Assert.IsNotNull(playlist, "Test playlist should exist in setup");
 
+            // Act
             var result = await playlistsService.GetPlaylistDetailsAsync(playlist.Id);
 
+            // Assert
             Assert.IsNotNull(result);
+            Assert.AreEqual(playlist.Id, result!.Id);
             Assert.AreEqual(playlist.Title, result.Title);
-            Assert.AreEqual(1, result.Songs.Count);
+            Assert.AreEqual(playlist.IsDefault, result.IsDeafault);
+
+            // Songs in playlist
+            var expectedSongsCount = playlist.PlaylistsSongs.Count;
+            Assert.AreEqual(expectedSongsCount, result.Songs.Count);
+
+            // Verify song properties and default image fallback
+            foreach (var songVm in result.Songs)
+            {
+                var song = playlist.PlaylistsSongs.Select(ps => ps.Song).FirstOrDefault(s => s.Id == songVm.Id);
+                Assert.IsNotNull(song);
+
+                Assert.AreEqual(song!.Title, songVm.Title);
+                Assert.AreEqual(song.Artist, songVm.Artist);
+
+                // ImageUrl fallback check
+                var expectedImageUrl = string.IsNullOrEmpty(song.ImageUrl) ? "/images/no-image.jpg" : song.ImageUrl;
+                Assert.AreEqual(expectedImageUrl, songVm.ImageUrl);
+            }
+
+            // Available songs should include songs NOT in playlist and not deleted
+            var allSongs = await dbContext.Songs.Where(s => !s.IsDeleted).ToListAsync();
+            var songsInPlaylistIds = playlist.PlaylistsSongs.Select(ps => ps.SongId).ToHashSet();
+            var expectedAvailableSongs = allSongs.Where(s => !songsInPlaylistIds.Contains(s.Id)).ToList();
+
+            Assert.AreEqual(expectedAvailableSongs.Count, result.AvailableSongs.Count);
+
+            foreach (var availableSongVm in result.AvailableSongs)
+            {
+                var matchingSong = expectedAvailableSongs.FirstOrDefault(s => s.Id == availableSongVm.Id);
+                Assert.IsNotNull(matchingSong);
+
+                var expectedImageUrl = string.IsNullOrEmpty(matchingSong.ImageUrl) ? "/images/no-image.jpg" : matchingSong.ImageUrl;
+                Assert.AreEqual(expectedImageUrl, availableSongVm.ImageUrl);
+            }
         }
+
+        [Test]
+        public async Task GetPlaylistDetailsAsync_ReturnsNull_WhenPlaylistDoesNotExist()
+        {
+            // Arrange
+            var nonExistentPlaylistId = Guid.NewGuid();
+
+            // Act
+            var result = await playlistsService.GetPlaylistDetailsAsync(nonExistentPlaylistId);
+
+            // Assert
+            Assert.IsNull(result);
+        }
+
 
         [Test]
         public async Task AddSongToFavoritesAsync_AddsSong_WhenNotExists()
@@ -407,6 +483,50 @@ namespace MusicApp.Tests.Services
         {
             var unknownId = Guid.NewGuid().ToString();
             var result = await playlistsService.GetPlaylistToEditAsync(testUser.Id, unknownId);
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public async Task GetAllSongsInPlaylistAssync_ReturnsAllSongs()
+        {
+            var playlist = await dbContext.Playlists.FirstAsync();
+
+            var result = await playlistsService.GetAllSongsInPlaylistAssync(playlist.Id.ToString());
+
+            Assert.AreEqual(2, result.Count());
+            Assert.IsTrue(result.Any(s => s.Title == "Song 1"));
+            Assert.IsTrue(result.Any(s => s.Title == "Song 2"));
+        }
+
+        [Test]
+        public async Task GetPlaylistToDeleteAsync_WithValidUserAndPlaylist_ReturnsDeletePlaylistViewModel()
+        {
+            // Arrange
+            var playlist = dbContext.Playlists.First();
+            string playlistId = playlist.Id.ToString();
+            string userId = testUser.Id;
+
+            // Act
+            var result = await playlistsService.GetPlaylistToDeleteAsync(userId, playlistId);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(playlist.Id, result.Id);
+            Assert.AreEqual(playlist.Title, result.Title);
+        }
+
+        [Test]
+        public async Task GetPlaylistToDeleteAsync_WithNullPlaylistId_ReturnsNull()
+        {
+            var result = await playlistsService.GetPlaylistToDeleteAsync(testUser.Id, null);
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public async Task GetPlaylistToDeleteAsync_WithNonexistentPlaylist_ReturnsNull()
+        {
+            var fakePlaylistId = Guid.NewGuid().ToString();
+            var result = await playlistsService.GetPlaylistToDeleteAsync(testUser.Id, fakePlaylistId);
             Assert.IsNull(result);
         }
     }
