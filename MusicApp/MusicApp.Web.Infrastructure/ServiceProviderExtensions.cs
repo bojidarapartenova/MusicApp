@@ -55,6 +55,70 @@
             }
             await dbContext.SaveChangesAsync();
         }
+
+        public static async Task SeedUsersAsync(this IServiceProvider serviceProvider)
+        {
+            var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var dbContext = serviceProvider.GetRequiredService<MusicAppDbContext>();
+
+            const string userEmail = "user@example.com";
+            const string userPassword = "123456";
+            const string username = "UserExample";
+
+            var existingUser = await userManager.FindByEmailAsync(userEmail);
+
+            ApplicationUser seedUser;
+            if (existingUser == null)
+            {
+                var newUser = new ApplicationUser
+                {
+                    UserName = username,
+                    Email = userEmail,
+                    EmailConfirmed = true
+                };
+
+                var result = await userManager.CreateAsync(newUser, userPassword);
+
+                if (!result.Succeeded)
+                {
+                    throw new InvalidOperationException(
+                        $"Failed to create seed user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                }
+
+                seedUser = newUser;
+            }
+            else
+            {
+                seedUser = existingUser;
+            }
+
+            var targetSong = await dbContext.Songs
+                .FirstOrDefaultAsync(s => s.Title == "Blinding Lights (Slowed)");
+
+            if (targetSong != null)
+            {
+                bool alreadyCommented = await dbContext.Comments
+                    .AnyAsync(c => c.SongId == targetSong.Id && c.UserId == seedUser.Id);
+
+                if (!alreadyCommented)
+                {
+                    var comment = new Comment
+                    {
+                        Id = Guid.NewGuid(),
+                        SongId = targetSong.Id,
+                        Text = "This version gives the song a whole new vibe — love it!",
+                        UserId = seedUser.Id,
+                        CreatedOn = DateTime.UtcNow
+                    };
+
+                    dbContext.Comments.Add(comment);
+                    await dbContext.SaveChangesAsync();
+                }
+            }
+        }
+
+
+
         private static List<Song> GetSeedSongs(string publisherId)
         {
             return new List<Song>

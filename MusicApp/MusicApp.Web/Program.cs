@@ -64,7 +64,7 @@ namespace MusicApp.Web
             app.UseAuthentication();
             app.UseAuthorization();
 
-            await app.SeedAdminAsync();
+            await app.SeedInitialDataAsync();
 
             app.MapControllerRoute(
                 name: "areas",
