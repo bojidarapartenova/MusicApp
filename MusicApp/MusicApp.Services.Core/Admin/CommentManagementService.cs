@@ -25,12 +25,13 @@ namespace MusicApp.Services.Core.Admin
             IEnumerable<CommentManagementViewModel> comments = await dbContext
                 .Comments
                 .AsNoTracking()
-                .OrderByDescending(c=>c.CreatedOn)
+                .Include(c => c.User) 
+                .OrderByDescending(c => c.CreatedOn)
                 .Select(c => new CommentManagementViewModel()
                 {
                     Id = c.Id,
                     Text = c.Text,
-                    UserName = c.User.UserName,
+                    UserName = c.User.UserName,  
                     CreatedOn = c.CreatedOn,
                     IsDeleted = c.IsDeleted
                 })
@@ -41,15 +42,14 @@ namespace MusicApp.Services.Core.Admin
 
         public async Task DeleteCommentAsync(Guid commentId)
         {
-            Comment? comment = await dbContext
-                .Comments
-                .FirstAsync(c => c.Id == commentId);
+            Comment? comment = await dbContext.Comments.FirstOrDefaultAsync(c => c.Id == commentId);
 
-            if(comment!=null)
+            if (comment != null)
             {
                 comment.IsDeleted = true;
                 await dbContext.SaveChangesAsync();
             }
+
         }
     }
 }
