@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -13,20 +12,24 @@ namespace MusicApp.Services.Tests.Services.Admin
     [TestFixture]
     public class SongManagementServiceTests
     {
-        private async Task<MusicAppDbContext> GetDbContextAsync()
+        private MusicAppDbContext dbContext;
+        private SongManagementService service;
+
+        [SetUp]
+        public async Task SetUp()
         {
             var options = new DbContextOptionsBuilder<MusicAppDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .EnableSensitiveDataLogging()
                 .Options;
 
-            var context = new MusicAppDbContext(options);
+            dbContext = new MusicAppDbContext(options);
 
             var genre = new Genre { Id = 1, Name = "Pop" };
             var user = new ApplicationUser { Id = "user123", UserName = "testuser", Email = "test@example.com" };
 
-            await context.Genres.AddAsync(genre);
-            await context.Users.AddAsync(user);
+            await dbContext.Genres.AddAsync(genre);
+            await dbContext.Users.AddAsync(user);
 
             var song1 = new Song
             {
@@ -56,31 +59,30 @@ namespace MusicApp.Services.Tests.Services.Admin
                 IsDeleted = true
             };
 
-            await context.Songs.AddRangeAsync(song1, song2);
-            await context.SaveChangesAsync();
+            await dbContext.Songs.AddRangeAsync(song1, song2);
+            await dbContext.SaveChangesAsync();
 
-            return context;
+            service = new SongManagementService(dbContext);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            dbContext.Database.EnsureDeleted();
+            dbContext.Dispose();
         }
 
         [Test]
         public async Task GetAllSongsAsync_ReturnsAllSongsIncludingDeleted()
         {
-            var context = await GetDbContextAsync();
-            var service = new SongManagementService(context);
-
             var result = await service.GetAllSongsAsync(null);
-
             Assert.AreEqual(2, result.Count());
         }
 
         [Test]
         public async Task GetAllSongsAsync_WithSearchTerm_FiltersCorrectly()
         {
-            var context = await GetDbContextAsync();
-            var service = new SongManagementService(context);
-
             var result = await service.GetAllSongsAsync("Song 1");
-
             Assert.AreEqual(1, result.Count());
             Assert.AreEqual("Test Song 1", result.First().Title);
         }
@@ -88,26 +90,20 @@ namespace MusicApp.Services.Tests.Services.Admin
         [Test]
         public async Task SoftDeleteAsync_SetsIsDeletedToTrue()
         {
-            var context = await GetDbContextAsync();
-            var service = new SongManagementService(context);
-
-            var song = context.Songs.First(s => !s.IsDeleted);
+            var song = dbContext.Songs.First(s => !s.IsDeleted);
             await service.SoftDeleteAsync(song.Id);
 
-            var updated = await context.Songs.FindAsync(song.Id);
+            var updated = await dbContext.Songs.FindAsync(song.Id);
             Assert.IsTrue(updated!.IsDeleted);
         }
 
         [Test]
         public async Task RestoreAsync_SetsIsDeletedToFalse()
         {
-            var context = await GetDbContextAsync();
-            var service = new SongManagementService(context);
-
-            var song = context.Songs.IgnoreQueryFilters().First(s => s.IsDeleted);
+            var song = dbContext.Songs.IgnoreQueryFilters().First(s => s.IsDeleted);
             await service.RestoreAsync(song.Id);
 
-            var updated = await context.Songs.IgnoreQueryFilters().FirstAsync(s => s.Id == song.Id);
+            var updated = await dbContext.Songs.IgnoreQueryFilters().FirstAsync(s => s.Id == song.Id);
             Assert.IsFalse(updated.IsDeleted);
         }
     }

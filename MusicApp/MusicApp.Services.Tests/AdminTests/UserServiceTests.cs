@@ -35,6 +35,13 @@ namespace MusicApp.Services.Tests.Services.Admin
             userService = new UserService(dbContext, userManagerMock.Object);
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            dbContext.Database.EnsureDeleted();
+            dbContext.Dispose();
+        }
+
         [Test]
         public async Task GetUsersCountAsync_ReturnsCorrectCount()
         {

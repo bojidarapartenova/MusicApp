@@ -103,8 +103,10 @@ namespace MusicApp.Services.Core.Admin.Tests
         [TearDown]
         public void TearDown()
         {
+            dbContext.Database.EnsureDeleted();
             dbContext.Dispose();
         }
+
 
         [Test]
         public async Task GetAllCommentsAsync_ReturnsAllCommentsOrderedByCreatedOnDescending()
