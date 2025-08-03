@@ -8,6 +8,7 @@ using MusicApp.Data.Data;
 using MusicApp.Services.Core.Admin;
 using MusicApp.Web.ViewModels.Admin.CommentManagement;
 using MusicApp.Data.Models;
+using MusicApp.Data.Models.Enums;
 
 namespace MusicApp.Services.Core.Admin.Tests
 {
@@ -41,7 +42,6 @@ namespace MusicApp.Services.Core.Admin.Tests
             dbContext.Users.AddRange(user1, user2, publisher);
 
             // Seed Genre
-            // Seed Genre (without fixed ID)
             var genre = new Genre
             {
                 Name = "Rock"
@@ -149,5 +149,40 @@ namespace MusicApp.Services.Core.Admin.Tests
             Assert.IsNotNull(deletedComment);
             Assert.IsTrue(deletedComment.IsDeleted);
         }
+
+        [Test]
+        public async Task DeleteCommentAsync_AlsoDeletesRelatedNotifications()
+        {
+            // Arrange
+            var comment = dbContext.Comments.First(c => c.Id == commentId1);
+
+            var notification = new Notification
+            {
+                Id = Guid.NewGuid(),
+                UserId = comment.Song.PublisherId,  // Who receives the notification
+                AuthorId = comment.UserId,          // Who made the comment
+                SongId = comment.SongId,
+                CommentId = comment.Id,
+                Type = NotificationType.Comment,
+                Message = "New comment on your song"
+            };
+
+            dbContext.Notifications.Add(notification);
+            await dbContext.SaveChangesAsync();
+
+            // Sanity check
+            Assert.IsTrue(dbContext.Notifications.Any(n => n.CommentId == commentId1));
+
+            // Act
+            await service.DeleteCommentAsync(commentId1);
+
+            // Assert
+            var deletedComment = dbContext.Comments.First(c => c.Id == commentId1);
+            Assert.IsTrue(deletedComment.IsDeleted, "Comment should be soft-deleted");
+
+            var deletedNotification = dbContext.Notifications.FirstOrDefault(n => n.CommentId == commentId1);
+            Assert.IsNull(deletedNotification, "Related notification should be removed");
+        }
+
     }
 }

@@ -47,9 +47,19 @@ namespace MusicApp.Services.Core.Admin
             if (comment != null)
             {
                 comment.IsDeleted = true;
+
+                IEnumerable<Notification> relatedNotifications = await dbContext.Notifications
+                    .Where(n => n.CommentId == commentId)
+                    .ToListAsync();
+
+                if (relatedNotifications.Any())
+                {
+                    dbContext.Notifications.RemoveRange(relatedNotifications);
+                }
+
                 await dbContext.SaveChangesAsync();
             }
-
         }
+
     }
 }
